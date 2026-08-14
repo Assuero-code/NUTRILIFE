@@ -1,3 +1,5 @@
+--- START OF FILE text/html ---
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -174,6 +176,28 @@
                     </div>
                 </div>
 
+                <!-- NOVO: RESUMO PREVISÃO VS CONSUMO -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">📋 Previsão Total</p>
+                        <p class="text-lg font-black text-slate-700"><span id="kcal-previsao">0</span> <span class="text-[10px] font-medium">kcal</span></p>
+                        <div class="flex gap-2 mt-1 text-[9px] font-bold text-slate-400">
+                           <span>P: <span id="p-previsao">0</span>g</span> 
+                           <span>C: <span id="c-previsao">0</span>g</span> 
+                           <span>G: <span id="g-previsao">0</span>g</span> 
+                        </div>
+                    </div>
+                    <div class="bg-emerald-500 p-4 rounded-3xl text-white shadow-lg shadow-emerald-100">
+                        <p class="text-[10px] font-black opacity-80 uppercase tracking-widest">✓ Já Consumido</p>
+                        <p class="text-lg font-black"><span id="kcal-consumido">0</span> <span class="text-[10px] font-medium">kcal</span></p>
+                        <div class="flex gap-2 mt-1 text-[9px] font-bold opacity-90">
+                           <span>P: <span id="p-consumido">0</span>g</span> 
+                           <span>C: <span id="c-consumido">0</span>g</span> 
+                           <span>G: <span id="g-consumido">0</span>g</span> 
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CARDS DE METAS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-6">
@@ -188,7 +212,7 @@
                             </div>
                         </div>
                         <div>
-                            <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Meta de Energia</p>
+                            <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">🎯 Meta Restante</p>
                             <h3 class="text-2xl font-black text-slate-800"><span id="kcal-meta">2300</span> <span class="text-sm font-medium">kcal</span></h3>
                             <p id="kcal-restante" class="text-emerald-500 font-bold text-sm mt-1">Faltam 2300 kcal</p>
                         </div>
@@ -200,7 +224,7 @@
                                 <i data-lucide="beef" class="w-4 h-4"></i>
                             </div>
                             <span class="block text-xl font-black" id="p-atual">0g</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase">Prot</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Falta Prot</span>
                             <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
                                 <div id="p-bar" class="bg-rose-500 h-full transition-all" style="width: 0%"></div>
                             </div>
@@ -210,7 +234,7 @@
                                 <i data-lucide="wheat" class="w-4 h-4"></i>
                             </div>
                             <span class="block text-xl font-black" id="c-atual">0g</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase">Carb</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Falta Carb</span>
                             <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
                                 <div id="c-bar" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
                             </div>
@@ -220,7 +244,7 @@
                                 <i data-lucide="droplet" class="w-4 h-4"></i>
                             </div>
                             <span class="block text-xl font-black" id="g-atual">0g</span>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase">Gord</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Falta Gord</span>
                             <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
                                 <div id="g-bar" class="bg-emerald-500 h-full transition-all" style="width: 0%"></div>
                             </div>
@@ -271,6 +295,18 @@
                     <h2 id="profile-name" class="text-2xl font-black">Usuário</h2>
                     <p id="profile-goal" class="text-emerald-500 font-bold uppercase text-xs tracking-widest mt-1">Objetivo: Emagrecer</p>
                 </div>
+
+                <!-- NOVO: MEUS ALIMENTOS PERSONALIZADOS -->
+                <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="font-black text-lg">🍎 Meus Alimentos</h3>
+                        <button onclick="app.openPermanentFoodModal()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase">+ Adicionar Permanente</button>
+                    </div>
+                    <div id="my-permanent-foods-list" class="space-y-2">
+                        <!-- Lista de alimentos permanentes -->
+                    </div>
+                </div>
+
                 <div class="space-y-4">
                     <button onclick="app.resetData()" class="w-full p-5 bg-rose-50 text-rose-600 rounded-3xl font-bold flex items-center justify-center gap-3">
                         <i data-lucide="log-out"></i> Sair e Resetar Dados
@@ -421,6 +457,7 @@
                 this.activeDay = this.getCurrentDayLabel();
                 this.selectedFood = null;
                 this.editingItemInfo = null; // { day, mealId, index }
+                this.editingPermanentId = null; // Para edição de alimento na base
                 this.chart = null;
                 this.init();
             }
@@ -580,6 +617,7 @@
                 this.renderPlano();
                 this.renderWeightHistory();
                 this.renderOrientation();
+                this.renderPermanentFoods();
                 document.getElementById('user-name-display').innerText = this.data.perfil.nome.split(' ')[0];
                 document.getElementById('display-day-title').innerText = "Resumo - " + this.activeDay.toUpperCase();
                 document.getElementById('profile-name').innerText = this.data.perfil.nome;
@@ -588,27 +626,30 @@
             }
 
             renderOrientation() {
-                const totals = this.calculateTotals(this.activeDay);
+                const consumed = this.calculateTotals(this.activeDay, true);
                 const meta = this.data.perfil;
                 const container = document.getElementById('orientation-card');
                 const content = document.getElementById('orientation-content');
+                
                 const diffs = [
-                    { label: 'CALORIAS', key: 'kcal', icon: '🔥', atual: totals.kcal, meta: meta.metaKcal, unit: 'kcal' },
-                    { label: 'PROTEÍNAS', key: 'p', icon: '🥩', atual: totals.p, meta: meta.metaP, unit: 'g' },
-                    { label: 'CARBOIDRATOS', key: 'c', icon: '🍚', atual: totals.c, meta: meta.metaC, unit: 'g' },
-                    { label: 'GORDURAS', key: 'g', icon: '🥑', atual: totals.g, meta: meta.metaG, unit: 'g' }
+                    { label: 'CALORIAS', key: 'kcal', icon: '🔥', atual: consumed.kcal, meta: meta.metaKcal, unit: 'kcal' },
+                    { label: 'PROTEÍNAS', key: 'p', icon: '🥩', atual: consumed.p, meta: meta.metaP, unit: 'g' },
+                    { label: 'CARBOIDRATOS', key: 'c', icon: '🍚', atual: consumed.c, meta: meta.metaC, unit: 'g' },
+                    { label: 'GORDURAS', key: 'g', icon: '🥑', atual: consumed.g, meta: meta.metaG, unit: 'g' }
                 ];
+                
                 const faltantes = diffs.filter(d => d.atual < d.meta);
                 if(faltantes.length === 0) {
                     container.classList.remove('hidden');
                     content.innerHTML = `<p class="font-bold text-lg">✓ Metas alcançadas!</p>`;
                     return;
                 }
+                
                 faltantes.sort((a,b) => (a.atual / a.meta) - (b.atual / b.meta));
                 const foco = faltantes[0];
                 container.classList.remove('hidden');
                 let html = `<p class="text-xl font-black mb-1">${foco.icon} Foco: ${foco.label}</p>
-                            <p class="text-xs opacity-90 mb-4">Faltam ${Math.round(foco.meta - foco.atual)} ${foco.unit}.</p>
+                            <p class="text-xs opacity-90 mb-4">Faltam ${Math.round(foco.meta - foco.atual)} ${foco.unit} consumidos para a meta.</p>
                             <div class="grid grid-cols-2 gap-2">`;
                 faltantes.slice(1).forEach(item => {
                     html += `<div class="bg-white/10 p-2 rounded-xl text-[10px]"><b>${item.icon} ${item.label}:</b> -${Math.round(item.meta - item.atual)}</div>`;
@@ -618,28 +659,51 @@
             }
 
             updateDashboard() {
-                const totals = this.calculateTotals(this.activeDay);
+                const prediction = this.calculateTotals(this.activeDay, false);
+                const consumed = this.calculateTotals(this.activeDay, true);
                 const meta = this.data.perfil;
-                document.getElementById('kcal-atual').innerText = totals.kcal;
+
+                // Atualizar labels de Previsão
+                document.getElementById('kcal-previsao').innerText = prediction.kcal;
+                document.getElementById('p-previsao').innerText = prediction.p;
+                document.getElementById('c-previsao').innerText = prediction.c;
+                document.getElementById('g-previsao').innerText = prediction.g;
+
+                // Atualizar labels de Consumido
+                document.getElementById('kcal-consumido').innerText = consumed.kcal;
+                document.getElementById('p-consumido').innerText = consumed.p;
+                document.getElementById('c-consumido').innerText = consumed.c;
+                document.getElementById('g-consumido').innerText = consumed.g;
+
+                // Lógica de Meta Restante (Baseada no Consumido)
+                const restKcal = Math.max(0, meta.metaKcal - consumed.kcal);
+                document.getElementById('kcal-atual').innerText = restKcal;
                 document.getElementById('kcal-meta').innerText = meta.metaKcal;
-                document.getElementById('kcal-restante').innerText = meta.metaKcal - totals.kcal > 0 ? `Faltam ${meta.metaKcal - totals.kcal} kcal` : `Meta atingida!`;
-                document.getElementById('kcal-ring').style.strokeDashoffset = 364.4 - (Math.min(totals.kcal / meta.metaKcal, 1) * 364.4);
+                document.getElementById('kcal-restante').innerText = restKcal > 0 ? `Restam ${restKcal} kcal` : `Meta atingida!`;
+                
+                // Ring de Progresso (O quanto já consumiu da meta)
+                document.getElementById('kcal-ring').style.strokeDashoffset = 364.4 - (Math.min(consumed.kcal / meta.metaKcal, 1) * 364.4);
+                
                 ['p','c','g'].forEach(m => {
-                    const k = m === 'p' ? 'metaP' : m === 'c' ? 'metaC' : 'metaG';
-                    document.getElementById(`${m}-atual`).innerText = totals[m] + 'g';
-                    document.getElementById(`${m}-bar`).style.width = Math.min(totals[m] / meta[k], 1) * 100 + '%';
+                    const metaVal = m === 'p' ? meta.metaP : m === 'c' ? meta.metaC : meta.metaG;
+                    const restVal = Math.max(0, metaVal - consumed[m]);
+                    document.getElementById(`${m}-atual`).innerText = restVal + 'g';
+                    document.getElementById(`${m}-bar`).style.width = Math.min(consumed[m] / metaVal, 1) * 100 + '%';
                 });
             }
 
-            calculateTotals(day) {
+            calculateTotals(day, onlyConcluded = false) {
                 let totals = { kcal: 0, p: 0, c: 0, g: 0 };
                 MEAL_TYPES.forEach(type => {
-                    this.data.refeicoes[day][type.id].forEach(item => {
-                        totals.kcal += item.totalKcal;
-                        totals.p += item.totalP;
-                        totals.c += item.totalC;
-                        totals.g += item.totalG;
-                    });
+                    const isConcluded = this.data.refeicoes[day][type.id + '_status'];
+                    if (!onlyConcluded || (onlyConcluded && isConcluded)) {
+                        this.data.refeicoes[day][type.id].forEach(item => {
+                            totals.kcal += item.totalKcal;
+                            totals.p += item.totalP;
+                            totals.c += item.totalC;
+                            totals.g += item.totalG;
+                        });
+                    }
                 });
                 Object.keys(totals).forEach(k => totals[k] = Math.round(totals[k]));
                 return totals;
@@ -673,12 +737,12 @@
                     const isDone = dayData[type.id + '_status'];
                     const targetKcal = this.data.perfil.metaKcal * type.pct;
                     let statusColor = "text-slate-400";
-                    let statusLabel = "Pendente";
-                    if(kcal > 0) {
+                    let statusLabel = isDone ? "✓ CONCLUÍDO" : "Pendente";
+                    if(kcal > 0 && !isDone) {
                         const diff = (kcal / targetKcal);
-                        if(diff >= 0.85 && diff <= 1.15) { statusColor = "text-emerald-500"; statusLabel = "🟢 Meta atingida"; }
-                        else if(diff < 0.85) { statusColor = "text-amber-500"; statusLabel = "🟡 Abaixo"; }
-                        else { statusColor = "text-orange-500"; statusLabel = "🟠 Acima"; }
+                        if(diff >= 0.85 && diff <= 1.15) { statusColor = "text-emerald-500"; statusLabel = "🟢 No Planejado"; }
+                        else if(diff < 0.85) { statusColor = "text-amber-500"; statusLabel = "🟡 Abaixo do Planejado"; }
+                        else { statusColor = "text-orange-500"; statusLabel = "🟠 Acima do Planejado"; }
                     }
 
                     return `<div class="space-y-4 p-4 rounded-[2.5rem] transition-colors ${isDone ? 'bg-emerald-50/50' : 'bg-transparent'}">
@@ -687,7 +751,7 @@
                                 <i data-lucide="${type.icon}" class="${isDone ? 'text-emerald-600' : 'text-slate-400'} w-6 h-6"></i>
                                 <div>
                                     <h3 class="text-xl font-black">${type.label}</h3>
-                                    <p class="text-[9px] font-black uppercase ${statusColor}">${statusLabel}</p>
+                                    <p class="text-[9px] font-black uppercase ${isDone ? 'text-emerald-600' : statusColor}">${statusLabel}</p>
                                 </div>
                             </div>
                             <div class="flex gap-2">
@@ -713,7 +777,6 @@
                                                 </div>
                                             </div>
                                             <div class="flex gap-1">
-                                                <!-- BOTÃO EDITAR (SOLICITAÇÃO 1) -->
                                                 <button onclick="app.editAddedItem('${type.id}', ${idx})" class="text-slate-200 hover:text-emerald-500 p-2 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
                                                 <button onclick="app.removeFood('${type.id}', ${idx})" class="text-slate-200 hover:text-rose-500 p-2 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                             </div>
@@ -727,18 +790,15 @@
                 lucide.createIcons();
             }
 
-            // FUNÇÃO PARA EDITAR ITEM JÁ LANÇADO (SOLICITAÇÃO 1)
             editAddedItem(mealId, index) {
                 const item = this.data.refeicoes[this.activeDay][mealId][index];
                 this.editingItemInfo = { day: this.activeDay, mealId, index };
                 
-                // Preparar Modal
                 document.getElementById('modal-food-title').innerText = "Editar Alimento";
                 document.getElementById('modal-food-tabs').style.display = "none";
                 document.getElementById('area-search').style.display = "none";
                 document.getElementById('area-manual').style.display = "block";
                 
-                // Preencher campos
                 document.getElementById('man-nome').value = item.nome;
                 document.getElementById('man-ref-qty').value = item.ref || 100;
                 document.getElementById('man-kcal').value = item.refKcal || Math.round((item.totalKcal / item.qty) * (item.ref || 100));
@@ -773,11 +833,69 @@
                 this.searchFood();
             }
 
+            // NOVAS FUNCIONALIDADES: MEUS ALIMENTOS PERMANENTES
+            openPermanentFoodModal() {
+                this.editingPermanentId = null;
+                document.getElementById('modal-food-title').innerText = "Novo Alimento Permanente";
+                document.getElementById('modal-food-tabs').style.display = "none";
+                this.setModalTab('manual');
+                document.getElementById('modal-food').classList.remove('hidden');
+            }
+
+            editPermanentFood(id) {
+                const food = this.data.meusAlimentos.find(f => f.id === id);
+                if(!food) return;
+                this.editingPermanentId = id;
+                document.getElementById('modal-food-title').innerText = "Editar Permanente";
+                document.getElementById('modal-food-tabs').style.display = "none";
+                this.setModalTab('manual');
+                
+                document.getElementById('man-nome').value = food.nome;
+                document.getElementById('man-ref-qty').value = food.ref;
+                document.getElementById('man-kcal').value = food.kcal;
+                document.getElementById('man-p').value = food.p;
+                document.getElementById('man-c').value = food.c;
+                document.getElementById('man-g').value = food.g;
+                const unitId = `unit-${food.unit === 'g' ? 'g' : food.unit === 'ml' ? 'ml' : 'un'}`;
+                document.getElementById(unitId).checked = true;
+
+                document.getElementById('modal-food').classList.remove('hidden');
+            }
+
+            deletePermanentFood(id) {
+                if(confirm("Deseja realmente excluir este alimento da sua lista de alimentos personalizados?")) {
+                    this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id);
+                    this.save(); this.renderAll();
+                }
+            }
+
+            renderPermanentFoods() {
+                const container = document.getElementById('my-permanent-foods-list');
+                if(!this.data.meusAlimentos.length) {
+                    container.innerHTML = `<p class="text-center text-slate-400 text-[10px] py-4 italic">Nenhum alimento cadastrado.</p>`;
+                    return;
+                }
+                container.innerHTML = this.data.meusAlimentos.map(f => `
+                    <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                        <div class="flex-1">
+                            <span class="font-bold text-sm block">${f.nome}</span>
+                            <span class="text-[9px] font-black uppercase text-slate-400">${f.kcal} kcal em ${f.ref}${f.unit}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="app.editPermanentFood(${f.id})" class="text-slate-300 hover:text-emerald-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="app.deletePermanentFood(${f.id})" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+
             closeFoodModal() {
                 document.getElementById('modal-food').classList.add('hidden');
                 this.selectedFood = null;
                 ['man-nome','man-kcal','man-p','man-c','man-g'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('man-ref-qty').value = 100;
+                this.editingPermanentId = null;
             }
 
             searchFood() {
@@ -807,21 +925,37 @@
 
             confirmAddFood() {
                 const qty = parseFloat(document.getElementById('selected-food-qty').value);
+                const nome = document.getElementById('man-nome').value.trim();
+                const unit = document.querySelector('input[name="man-unit"]:checked').value;
+                const ref = parseFloat(document.getElementById('man-ref-qty').value) || 100;
+                const rKcal = parseFloat(document.getElementById('man-kcal').value) || 0;
+                const rP = parseFloat(document.getElementById('man-p').value) || 0;
+                const rC = parseFloat(document.getElementById('man-c').value) || 0;
+                const rG = parseFloat(document.getElementById('man-g').value) || 0;
+
+                // Se estivermos editando/criando na base (perfil)
+                if(this.editingPermanentId || (this.selectedFood?.isManual && !this.activeMealId)) {
+                    if(!nome) return alert("Dê um nome ao alimento.");
+                    const foodData = { id: this.editingPermanentId || Date.now(), nome, kcal: rKcal, p: rP, c: rC, g: rG, unit, ref, isCustom: true };
+                    if(this.editingPermanentId) {
+                        const idx = this.data.meusAlimentos.findIndex(f => f.id === this.editingPermanentId);
+                        this.data.meusAlimentos[idx] = foodData;
+                    } else {
+                        if(this.data.meusAlimentos.some(f => f.nome.toLowerCase() === nome.toLowerCase())) {
+                            if(!confirm("Já existe um alimento com este nome. Deseja salvar mesmo assim?")) return;
+                        }
+                        this.data.meusAlimentos.push(foodData);
+                    }
+                    this.save(); this.closeFoodModal(); this.renderAll();
+                    return;
+                }
+
+                // Fluxo normal de adicionar à refeição
                 if(isNaN(qty) || qty <= 0) return alert("Insira uma quantidade válida.");
 
                 let newItem;
                 if (this.selectedFood?.isManual) {
-                    const nome = document.getElementById('man-nome').value.trim();
-                    const unit = document.querySelector('input[name="man-unit"]:checked').value;
-                    const ref = parseFloat(document.getElementById('man-ref-qty').value) || 100;
-                    const rKcal = parseFloat(document.getElementById('man-kcal').value) || 0;
-                    const rP = parseFloat(document.getElementById('man-p').value) || 0;
-                    const rC = parseFloat(document.getElementById('man-c').value) || 0;
-                    const rG = parseFloat(document.getElementById('man-g').value) || 0;
-                    
                     if(!nome) return alert("Dê um nome ao alimento.");
-
-                    // Cálculo Proporcional (SOLICITAÇÃO 5, 6, 7 e 8)
                     const factor = qty / ref;
                     newItem = {
                         nome, qty, unit, ref,
@@ -832,7 +966,6 @@
                         totalG: parseFloat((rG * factor).toFixed(1))
                     };
 
-                    // Se for novo alimento (não edição), salvar na base global
                     if (!this.editingItemInfo) {
                         this.data.meusAlimentos.push({
                             id: Date.now(), nome, kcal: rKcal, p: rP, c: rC, g: rG, unit, ref, isCustom: true
@@ -852,10 +985,8 @@
 
                 if(newItem) {
                     if(this.editingItemInfo) {
-                        // Salvar edição (SOLICITAÇÃO 2)
                         this.data.refeicoes[this.editingItemInfo.day][this.editingItemInfo.mealId][this.editingItemInfo.index] = newItem;
                     } else {
-                        // Adicionar novo
                         this.data.refeicoes[this.activeDay][this.activeMealId].push(newItem);
                     }
                     this.save(); this.closeFoodModal(); this.renderAll();
@@ -887,7 +1018,9 @@
             }
 
             renderChart() {
-                const ctx = document.getElementById('weightChart').getContext('2d');
+                const canvas = document.getElementById('weightChart');
+                if(!canvas) return;
+                const ctx = canvas.getContext('2d');
                 if(this.chart) this.chart.destroy();
                 this.chart = new Chart(ctx, {
                     type: 'line',
