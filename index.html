@@ -31,7 +31,7 @@
                     <i data-lucide="apple" class="text-white w-8 h-8"></i>
                 </div>
                 <h1 class="text-3xl font-extrabold text-slate-800">Nutri Life</h1>
-                <p class="text-slate-500">Sua jornada saudável começa aqui</p>
+                <p class="text-slate-500 text-center">Configuração Nutricional Científica</p>
             </div>
             
             <form id="form-cadastro" class="space-y-6">
@@ -63,14 +63,25 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2">Objetivo</label>
+                    <label class="block text-sm font-bold mb-2">Qual seu Objetivo Principal?</label>
                     <select id="reg-objetivo" class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none appearance-none">
-                        <option value="emagrecer">Emagrecer</option>
-                        <option value="manter">Manter Peso</option>
-                        <option value="ganhar">Ganhar Massa Muscular</option>
+                        <option value="emagrecer">Emagrecer (Foco queima de gordura)</option>
+                        <option value="recomposicao">Recomposição (Perder gordura e ganhar massa)</option>
+                        <option value="ganhar">Ganhar Massa Muscular (Hipertrofia)</option>
+                        <option value="manter">Manter Peso Saudável</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 text-white p-5 rounded-3xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition">Calcular Minha Meta</button>
+                <div>
+                    <label class="block text-sm font-bold mb-2">Frequência de Exercícios Físicos</label>
+                    <select id="reg-treino" class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none appearance-none">
+                        <option value="1.2">Sedentário (Pouco ou nenhum exercício)</option>
+                        <option value="1.375">Leve (Exercício 1 a 3 dias/semana)</option>
+                        <option value="1.55">Moderado (Exercício 3 a 5 dias/semana)</option>
+                        <option value="1.725">Ativo (Exercício 6 a 7 dias/semana)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 text-white p-5 rounded-3xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition">Gerar Plano Científico</button>
                 <button type="button" onclick="app.loadDemo()" class="w-full text-slate-400 font-medium py-2">Usar Dados de Demonstração</button>
             </form>
         </div>
@@ -95,7 +106,7 @@
         </aside>
 
         <header class="md:hidden glass fixed top-0 left-0 right-0 p-5 z-30 flex justify-between items-center border-b border-slate-100">
-            <h2 id="tab-title-mobile" class="text-xl font-extrabold tracking-tight">Início</h2>
+            <h2 id="tab-title-mobile" class="text-xl font-extrabold tracking-tight text-emerald-600">Nutri Life</h2>
             <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
                 <i data-lucide="user" class="w-5 h-5"></i>
             </div>
@@ -193,7 +204,7 @@
             <!-- TAB: PLANO -->
             <section id="tab-plano" class="tab-content space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <h1 class="text-3xl font-extrabold">Meu Plano</h1>
+                    <h1 class="text-3xl font-extrabold text-slate-800">Meu Plano</h1>
                     <div class="flex gap-2">
                         <button onclick="app.cloneMonday()" class="bg-indigo-100 text-indigo-700 px-5 py-3 rounded-2xl font-bold text-xs flex items-center gap-2">
                             <i data-lucide="copy" class="w-4 h-4"></i> Copiar Segunda
@@ -206,20 +217,19 @@
                 <div id="full-meals-list" class="space-y-8"></div>
             </section>
 
-            <!-- TAB: PROGRESSO (PESO) -->
+            <!-- TAB: PROGRESSO -->
             <section id="tab-progresso" class="tab-content space-y-6">
-                <h1 class="text-3xl font-extrabold">Progresso</h1>
+                <h1 class="text-3xl font-extrabold text-slate-800">Evolução do Peso</h1>
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <canvas id="weightChart" height="250"></canvas>
                 </div>
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
-                    <h3 class="font-bold mb-4">Registrar Novo Peso</h3>
+                    <h3 class="font-bold mb-4">Registrar Peso</h3>
                     <div class="flex gap-4">
                         <input type="number" id="new-weight" step="0.1" class="flex-1 p-4 bg-slate-100 rounded-2xl outline-none" placeholder="00.0 kg">
                         <button onclick="app.addWeightRecord()" class="bg-slate-900 text-white px-8 rounded-2xl font-bold">Salvar</button>
                     </div>
                 </div>
-
                 <div class="space-y-4">
                     <div class="flex items-center justify-between px-2">
                         <h3 class="text-xl font-extrabold">📅 Histórico Mensal</h3>
@@ -242,8 +252,8 @@
                 </div>
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4">
                     <div class="flex justify-between items-center px-2">
-                        <h3 class="font-black text-lg">🍎 Alimentos Salvos</h3>
-                        <button onclick="app.openPermanentFoodModal()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase">+ Adicionar</button>
+                        <h3 class="font-black text-lg">🍎 Meus Ingredientes</h3>
+                        <button onclick="app.openPermanentFoodModal()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase">+ Adicionar Alimento</button>
                     </div>
                     <div id="my-permanent-foods-list" class="space-y-2"></div>
                 </div>
@@ -251,7 +261,6 @@
             </section>
         </main>
 
-        <!-- NAVEGAÇÃO MOBILE -->
         <nav class="md:hidden glass fixed bottom-0 left-0 right-0 h-20 border-t border-slate-100 flex justify-around items-center px-6 safe-area-bottom z-40">
             <button onclick="app.showTab('home')" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-tab="home"><i data-lucide="layout-grid"></i><span class="text-[10px] font-bold">Início</span></button>
             <button onclick="app.showTab('plano')" class="nav-link flex flex-col items-center gap-1 text-slate-400" data-tab="plano"><i data-lucide="calendar"></i><span class="text-[10px] font-bold">Plano</span></button>
@@ -264,8 +273,8 @@
     <div id="modal-food" class="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm hidden flex items-end md:items-center justify-center">
         <div class="bg-white w-full max-w-md rounded-t-[3rem] md:rounded-[3rem] p-8 space-y-6">
             <div class="flex justify-between items-center">
-                <h3 id="modal-food-title" class="text-2xl font-black">Adicionar Alimento</h3>
-                <button onclick="app.closeFoodModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 id="modal-food-title" class="text-2xl font-black">Alimento</h3>
+                <button onclick="app.closeFoodModal()" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"><i data-lucide="x"></i></button>
             </div>
             
             <div class="flex gap-4 border-b border-slate-100" id="modal-food-tabs">
@@ -273,41 +282,38 @@
                 <button onclick="app.setModalTab('manual')" id="tab-manual-btn" class="pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm">+ Manual</button>
             </div>
 
-            <!-- BUSCA -->
             <div id="area-search" class="space-y-4">
-                <input type="text" id="food-search" onkeyup="app.searchFood()" placeholder="O que vamos comer?" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
+                <input type="text" id="food-search" onkeyup="app.searchFood()" placeholder="Buscar na base..." class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
                 <div id="search-results" class="max-h-60 overflow-y-auto space-y-2"></div>
             </div>
 
-            <!-- MANUAL -->
             <div id="area-manual" class="hidden space-y-4">
                 <input type="text" id="man-nome" placeholder="Nome do Alimento" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
                 <div class="grid grid-cols-3 gap-2">
-                    <input type="radio" name="man-unit" id="unit-g" value="g" class="hidden" checked><label for="unit-g" class="p-3 border-2 rounded-xl text-center text-xs font-bold cursor-pointer transition">Grama (g)</label>
-                    <input type="radio" name="man-unit" id="unit-ml" value="ml" class="hidden"><label for="unit-ml" class="p-3 border-2 rounded-xl text-center text-xs font-bold cursor-pointer transition">Mili. (ml)</label>
-                    <input type="radio" name="man-unit" id="unit-un" value="un" class="hidden"><label for="unit-un" class="p-3 border-2 rounded-xl text-center text-xs font-bold cursor-pointer transition">Unid. (un)</label>
+                    <input type="radio" name="man-unit" id="unit-g" value="g" class="hidden" checked><label for="unit-g" class="p-3 border-2 rounded-xl text-center text-[10px] font-bold cursor-pointer transition">Grama (g)</label>
+                    <input type="radio" name="man-unit" id="unit-ml" value="ml" class="hidden"><label for="unit-ml" class="p-3 border-2 rounded-xl text-center text-[10px] font-bold cursor-pointer transition">Mili. (ml)</label>
+                    <input type="radio" name="man-unit" id="unit-un" value="un" class="hidden"><label for="unit-un" class="p-3 border-2 rounded-xl text-center text-[10px] font-bold cursor-pointer transition">Unid. (un)</label>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Qtd de Ref.</label><input type="number" id="man-ref-qty" value="100" class="w-full p-4 bg-slate-100 rounded-2xl outline-none"></div>
-                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase ml-2">Kcal (na ref)</label><input type="number" id="man-kcal" placeholder="0" class="w-full p-4 bg-slate-100 rounded-2xl outline-none"></div>
+                    <input type="number" id="man-ref-qty" value="100" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
+                    <input type="number" id="man-kcal" placeholder="Kcal" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase text-center block">P (g)</label><input type="number" id="man-p" value="0" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center"></div>
-                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase text-center block">C (g)</label><input type="number" id="man-c" value="0" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center"></div>
-                    <div class="space-y-1"><label class="text-[9px] font-bold text-slate-400 uppercase text-center block">G (g)</label><input type="number" id="man-g" value="0" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center"></div>
+                    <input type="number" id="man-p" placeholder="P (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
+                    <input type="number" id="man-c" placeholder="C (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
+                    <input type="number" id="man-g" placeholder="G (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
                 </div>
             </div>
 
-            <!-- ÁREA DE CONFIRMAÇÃO (BOTÃO SALVAR) -->
             <div id="selected-food-area" class="hidden space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex justify-between items-center" id="qty-row">
                     <span id="selected-food-name" class="font-bold text-lg truncate flex-1 pr-4"></span>
                     <div class="flex items-center gap-2">
-                        <input type="number" id="selected-food-qty" value="100" class="w-24 p-4 bg-slate-100 rounded-2xl text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" id="selected-food-qty" value="100" class="w-24 p-4 bg-slate-100 rounded-2xl text-center font-bold outline-none">
                         <span id="selected-food-unit-label" class="text-slate-400 font-bold">g</span>
                     </div>
                 </div>
-                <button onclick="app.confirmAddFood()" id="btn-save-food" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-bold shadow-lg transition active:scale-95">Confirmar e Salvar</button>
+                <button onclick="app.confirmAddFood()" id="btn-save-food" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-bold shadow-lg">Confirmar e Salvar</button>
             </div>
         </div>
     </div>
@@ -353,6 +359,7 @@
                 lucide.createIcons();
                 if (!this.data) {
                     document.getElementById('onboarding').classList.remove('hidden');
+                    document.getElementById('main-app').classList.add('hidden');
                 } else {
                     this.fixDataStructure();
                     document.getElementById('onboarding').classList.add('hidden');
@@ -382,20 +389,40 @@
                 const peso = parseFloat(document.getElementById('reg-peso').value);
                 const altura = parseInt(document.getElementById('reg-altura').value);
                 const objetivo = document.getElementById('reg-objetivo').value;
-                const treinos = parseInt(document.getElementById('reg-treino').value);
+                const fatorAtividade = parseFloat(document.getElementById('reg-treino').value);
                 const sexo = document.getElementById('reg-sexo').value;
 
-                let tmb = (sexo === 'M') ? (10 * peso) + (6.25 * altura) - (5 * idade) + 5 : (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
-                let fator = 1.2;
-                if(treinos >= 1) fator = 1.375;
-                if(treinos >= 3) fator = 1.55;
+                // Mifflin-St Jeor Equation (Cálculo verídico de TMB)
+                let tmb = (10 * peso) + (6.25 * altura) - (5 * idade);
+                tmb = (sexo === 'M') ? tmb + 5 : tmb - 161;
+                
+                let tdee = Math.round(tmb * fatorAtividade); // Gasto Calórico Total
+                let metaKcal, metaP, metaC, metaG;
 
-                let metaKcal = Math.round(tmb * fator);
-                if (objetivo === 'emagrecer') metaKcal -= 500;
-                if (objetivo === 'ganhar') metaKcal += 400;
+                // Análise científica por objetivo
+                if (objetivo === 'emagrecer') {
+                    metaKcal = tdee - 500;
+                    metaP = Math.round(peso * 2.0); // Proteína alta para segurar massa magra
+                    metaG = Math.round(peso * 0.7);
+                } else if (objetivo === 'recomposicao') {
+                    metaKcal = tdee - 150; // Leve déficit para queima e ganho simultâneo
+                    metaP = Math.round(peso * 2.2); // Proteína máxima para síntese muscular
+                    metaG = Math.round(peso * 0.8);
+                } else if (objetivo === 'ganhar') {
+                    metaKcal = tdee + 400;
+                    metaP = Math.round(peso * 1.8);
+                    metaG = Math.round(peso * 0.9);
+                } else {
+                    metaKcal = tdee;
+                    metaP = Math.round(peso * 1.6);
+                    metaG = Math.round(peso * 0.8);
+                }
+                
+                // Carboidrato é o restante das calorias
+                metaC = Math.round((metaKcal - (metaP * 4) - (metaG * 9)) / 4);
 
                 this.data = {
-                    perfil: { nome, idade, peso, altura, objetivo, metaKcal, metaP: Math.round(peso*2), metaC: Math.round(peso*3), metaG: Math.round(peso*0.8) },
+                    perfil: { nome, idade, peso, altura, objetivo, metaKcal, metaP, metaC, metaG },
                     refeicoes: {}, meusAlimentos: [],
                     historicoPeso: [{ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), peso: peso, timestamp: Date.now() }]
                 };
@@ -409,9 +436,10 @@
 
             loadDemo() {
                 document.getElementById('reg-nome').value = "Demonstração";
-                document.getElementById('reg-idade').value = "30";
-                document.getElementById('reg-peso').value = "75";
+                document.getElementById('reg-idade').value = "28";
+                document.getElementById('reg-peso').value = "80";
                 document.getElementById('reg-altura').value = "175";
+                document.getElementById('reg-treino').value = "1.55";
                 document.getElementById('form-cadastro').querySelector('button[type="submit"]').click();
             }
 
@@ -437,7 +465,8 @@
                 document.getElementById('user-name-display').innerText = this.data.perfil.nome.split(' ')[0];
                 document.getElementById('display-day-title').innerText = "Resumo - " + this.activeDay.toUpperCase();
                 document.getElementById('profile-name').innerText = this.data.perfil.nome;
-                document.getElementById('profile-goal').innerText = "Objetivo: " + this.data.perfil.objetivo.toUpperCase();
+                let objMap = { emagrecer: "Emagrecimento", recomposicao: "Recomposição Corporal", ganhar: "Ganho de Massa", manter: "Manutenção" };
+                document.getElementById('profile-goal').innerText = "Objetivo: " + objMap[this.data.perfil.objetivo];
                 lucide.createIcons();
             }
 
@@ -478,14 +507,17 @@
                 const prediction = this.calculateTotals(this.activeDay, false);
                 const consumed = this.calculateTotals(this.activeDay, true);
                 const meta = this.data.perfil;
+
                 ['kcal','p','c','g'].forEach(k => {
                     document.getElementById(`${k}-previsao`).innerText = prediction[k];
                     document.getElementById(`${k}-consumido`).innerText = consumed[k];
                 });
+
                 const restKcal = Math.max(0, meta.metaKcal - consumed.kcal);
                 document.getElementById('kcal-atual').innerText = restKcal;
                 document.getElementById('kcal-meta').innerText = meta.metaKcal;
                 document.getElementById('kcal-ring').style.strokeDashoffset = 364.4 - (Math.min(consumed.kcal / meta.metaKcal, 1) * 364.4);
+                
                 ['p','c','g'].forEach(m => {
                     const metaVal = meta['meta' + m.toUpperCase()];
                     document.getElementById(`${m}-atual`).innerText = Math.max(0, metaVal - consumed[m]) + 'g';
@@ -535,7 +567,7 @@
                             </div>
                         </div>
                         <div class="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
-                            ${dayData[type.id].length === 0 ? `<div class="p-8 text-center text-slate-400 text-xs italic">Nenhum alimento.</div>` : `
+                            ${dayData[type.id].length === 0 ? `<div class="p-8 text-center text-slate-400 text-xs italic">Nenhum alimento cadastrado.</div>` : `
                                 <div class="divide-y divide-slate-50">
                                     ${dayData[type.id].map((item, idx) => `
                                         <div class="p-5 flex justify-between items-start group">
@@ -562,18 +594,9 @@
             }
 
             toggleMealStatus(mealId) { this.data.refeicoes[this.activeDay][mealId + '_status'] = !this.data.refeicoes[this.activeDay][mealId + '_status']; this.save(); this.renderAll(); }
-            
-            openFoodModal(mealId) { 
-                this.activeMealId = mealId; 
-                document.getElementById('modal-food').classList.remove('hidden'); 
-                this.setModalTab('search'); 
-            }
-
-            openPermanentFoodModal() { 
-                this.activeMealId = null; 
-                document.getElementById('modal-food').classList.remove('hidden'); 
-                this.setModalTab('manual'); 
-            }
+            openFoodModal(mealId) { this.activeMealId = mealId; document.getElementById('modal-food').classList.remove('hidden'); this.setModalTab('search'); }
+            openPermanentFoodModal() { this.activeMealId = null; document.getElementById('modal-food').classList.remove('hidden'); this.setModalTab('manual'); }
+            closeFoodModal() { document.getElementById('modal-food').classList.add('hidden'); this.selectedFood = null; }
 
             setModalTab(tab) {
                 const isS = tab === 'search';
@@ -582,11 +605,10 @@
                 document.getElementById('tab-search-btn').className = isS ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
                 document.getElementById('tab-manual-btn').className = !isS ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
                 
-                // CORREÇÃO: Mostra o rodapé (área do botão salvar) imediatamente ao entrar no manual
+                document.getElementById('selected-food-area').classList.remove('hidden');
                 if(!isS) {
                     this.selectedFood = { isManual: true };
-                    document.getElementById('selected-food-area').classList.remove('hidden');
-                    document.getElementById('selected-food-name').innerText = this.activeMealId ? "Novo Alimento Manual" : "Novo Alimento Permanente";
+                    document.getElementById('selected-food-name').innerText = this.activeMealId ? "Novo Manual" : "Cadastrar Alimento";
                     document.getElementById('qty-row').style.display = this.activeMealId ? 'flex' : 'none';
                 } else {
                     document.getElementById('selected-food-area').classList.add('hidden');
@@ -612,7 +634,6 @@
             confirmAddFood() {
                 if(!this.selectedFood) return;
                 let finalFood, qty;
-
                 if(this.selectedFood.isManual) {
                     const nome = document.getElementById('man-nome').value;
                     const rK = parseFloat(document.getElementById('man-kcal').value) || 0;
@@ -621,12 +642,11 @@
                     const rG = parseFloat(document.getElementById('man-g').value) || 0;
                     const refQ = parseFloat(document.getElementById('man-ref-qty').value) || 100;
                     const unit = document.querySelector('input[name="man-unit"]:checked').value;
-                    if(!nome) return alert("Dê um nome ao alimento.");
+                    if(!nome) return alert("Dê um nome.");
                     finalFood = { id: Date.now(), nome, kcal: rK, p: rP, c: rC, g: rG, ref: refQ, unit };
                 } else {
                     finalFood = this.selectedFood;
                 }
-
                 if (this.activeMealId) {
                     qty = parseFloat(document.getElementById('selected-food-qty').value) || 100;
                     const factor = qty / (finalFood.ref || 100);
@@ -635,11 +655,9 @@
                 } else {
                     this.data.meusAlimentos.push(finalFood);
                 }
-
                 this.save(); this.closeFoodModal(); this.renderAll();
             }
 
-            closeFoodModal() { document.getElementById('modal-food').classList.add('hidden'); this.selectedFood = null; }
             removeFood(mId, idx) { this.data.refeicoes[this.activeDay][mId].splice(idx, 1); this.save(); this.renderAll(); }
             
             addWeightRecord() {
@@ -656,7 +674,7 @@
                 history.forEach(r => months.add(r.data.split('/')[1] + '/' + r.data.split('/')[2]));
                 filter.innerHTML = '<option value="all">TODOS</option>' + Array.from(months).map(m => `<option value="${m}">${m}</option>`).join('');
                 const filtered = filter.value === 'all' ? history : history.filter(r => r.data.includes(filter.value));
-                document.getElementById('weight-history').innerHTML = filtered.map(r => `<div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm"><div><span class="text-[10px] text-slate-400 font-bold block">${r.data}</span><span class="font-black text-lg">${r.peso} kg</span></div><button onclick="app.deleteWeightRecord(${r.id})" class="text-slate-200 hover:text-rose-500"><i data-lucide="trash-2"></i></button></div>`).join('');
+                document.getElementById('weight-history').innerHTML = filtered.map(r => `<div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm"><div><span class="text-[10px] text-slate-400 font-bold block">${r.data}</span><span class="font-black text-lg">${r.peso} kg</span></div><button onclick="app.deleteWeightRecord(${r.id})" class="text-slate-200 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join('');
                 lucide.createIcons();
             }
 
@@ -670,11 +688,11 @@
                 this.chart = new Chart(canvas.getContext('2d'), { type: 'line', data: { labels: sorted.map(r => r.data), datasets: [{ data: sorted.map(r => r.peso), borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16,185,129,0.05)' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { grid: { display: false } }, x: { grid: { display: false } } } } });
             }
 
-            cloneMonday() { const mon = this.data.refeicoes['seg']; if(confirm("Copiar segunda para a semana?")) { DAYS.forEach(d => { if(d !== 'seg') this.data.refeicoes[d] = JSON.parse(JSON.stringify(mon)); }); this.save(); this.renderAll(); } }
-            resetWeeklyStatus() { if(confirm("Limpar conclusões da semana?")) { DAYS.forEach(d => MEAL_TYPES.forEach(m => this.data.refeicoes[d][m.id + '_status'] = false)); this.save(); this.renderAll(); } }
-            renderPermanentFoods() { document.getElementById('my-permanent-foods-list').innerHTML = this.data.meusAlimentos.map(f => `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center font-bold text-sm"><span>${f.nome}</span><button onclick="app.deletePermanent(${f.id})" class="text-rose-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join(''); lucide.createIcons(); }
-            deletePermanent(id) { if(confirm("Remover dos salvos?")) { this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id); this.save(); this.renderAll(); } }
-            resetData() { if(confirm("Deseja apagar tudo?")) { localStorage.removeItem('nutrilife_data_v2'); location.reload(); } }
+            cloneMonday() { const mon = this.data.refeicoes['seg']; if(confirm("Copiar segunda?")) { DAYS.forEach(d => { if(d !== 'seg') this.data.refeicoes[d] = JSON.parse(JSON.stringify(mon)); }); this.save(); this.renderAll(); } }
+            resetWeeklyStatus() { if(confirm("Limpar conclusões?")) { DAYS.forEach(d => MEAL_TYPES.forEach(m => this.data.refeicoes[d][m.id + '_status'] = false)); this.save(); this.renderAll(); } }
+            renderPermanentFoods() { document.getElementById('my-permanent-foods-list').innerHTML = this.data.meusAlimentos.map(f => `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center font-bold text-sm"><span>${f.nome}</span><button onclick="app.deletePermanent(${f.id})" class="text-rose-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join(''); lucide.createIcons(); }
+            deletePermanent(id) { if(confirm("Remover?")) { this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id); this.save(); this.renderAll(); } }
+            resetData() { if(confirm("Apagar tudo?")) { localStorage.removeItem('nutrilife_data_v2'); location.reload(); } }
         }
 
         const app = new NutriLife();
