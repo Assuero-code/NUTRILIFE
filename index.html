@@ -55,7 +55,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold mb-2">Peso (kg)</label>
-                        <input type="number" id="reg-peso" required class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none">
+                        <input type="number" id="reg-peso" step="0.1" required class="w-full p-4 bg-slate-100 border-none rounded-2xl outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-bold mb-2">Altura (cm)</label>
@@ -104,12 +104,11 @@
                 <button type="submit" class="w-full bg-emerald-600 text-white p-5 rounded-3xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition">Calcular Minha Meta</button>
                 <button type="button" onclick="app.loadDemo()" class="w-full text-slate-400 font-medium py-2">Usar Dados de Demonstração</button>
             </form>
-            <p class="text-[10px] text-center text-slate-400 mt-8">As informações geradas são estimativas e não substituem um profissional de saúde.</p>
         </div>
     </div>
 
     <!-- APP PRINCIPAL -->
-    <div id="main-app" class="pb-24 md:pb-0 md:pl-64 min-h-screen">
+    <div id="main-app" class="pb-24 md:pb-0 md:pl-64 min-h-screen hidden">
         
         <!-- SIDEBAR DESKTOP -->
         <aside class="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-100 flex-col p-6 z-40">
@@ -174,7 +173,7 @@
                     </div>
                 </div>
 
-                <!-- NOVO: RESUMO PREVISÃO VS CONSUMO -->
+                <!-- RESUMO PREVISÃO VS CONSUMO -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-white p-4 rounded-3xl border border-slate-100">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">📋 Previsão Total</p>
@@ -286,7 +285,6 @@
                     </div>
                 </div>
 
-                <!-- NOVA FUNCIONALIDADE: HISTÓRICO DE PESOS -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between px-2">
                         <h3 class="text-xl font-extrabold">📅 Histórico</h3>
@@ -294,11 +292,7 @@
                             <option value="all">TODOS</option>
                         </select>
                     </div>
-
-                    <!-- SUMÁRIO MENSAL -->
                     <div id="monthly-weight-summary" class="grid grid-cols-3 gap-3"></div>
-
-                    <!-- LISTA DE HISTÓRICO -->
                     <div id="weight-history" class="space-y-3"></div>
                 </div>
             </section>
@@ -370,70 +364,41 @@
             <div id="area-search" class="space-y-4">
                 <div class="relative">
                     <i data-lucide="search" class="absolute left-4 top-4 text-slate-400 w-5 h-5"></i>
-                    <input type="text" id="food-search" onkeyup="app.searchFood()" placeholder="Sua lista ou base geral..." class="w-full p-4 pl-12 bg-slate-100 rounded-2xl outline-none">
+                    <input type="text" id="food-search" onkeyup="app.searchFood()" placeholder="Pesquise..." class="w-full p-4 pl-12 bg-slate-100 rounded-2xl outline-none">
                 </div>
                 <div id="search-results" class="max-h-60 overflow-y-auto space-y-2"></div>
             </div>
 
-            <div id="area-manual" class="hidden space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-                <div>
-                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Nome do Alimento</label>
-                    <input type="text" id="man-nome" placeholder="Ex: Shake Caseiro" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
+            <div id="area-manual" class="hidden space-y-4 max-h-[60vh] overflow-y-auto">
+                <input type="text" id="man-nome" placeholder="Nome do Alimento" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
+                <div class="grid grid-cols-3 gap-2">
+                    <input type="radio" name="man-unit" id="unit-g" value="g" class="hidden" checked onchange="app.updateManualUnitLabel('g')">
+                    <label for="unit-g" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer">Grama (g)</label>
+                    <input type="radio" name="man-unit" id="unit-ml" value="ml" class="hidden" onchange="app.updateManualUnitLabel('ml')">
+                    <label for="unit-ml" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer">Mili. (ml)</label>
+                    <input type="radio" name="man-unit" id="unit-un" value="un" class="hidden" onchange="app.updateManualUnitLabel('un')">
+                    <label for="unit-un" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer">Unid. (un)</label>
                 </div>
-
-                <div>
-                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Unidade de Medida</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="radio" name="man-unit" id="unit-g" value="g" class="hidden" checked onchange="app.updateManualUnitLabel('g')">
-                        <label for="unit-g" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer transition">Grama (g)</label>
-
-                        <input type="radio" name="man-unit" id="unit-ml" value="ml" class="hidden" onchange="app.updateManualUnitLabel('ml')">
-                        <label for="unit-ml" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer transition">Mili. (ml)</label>
-
-                        <input type="radio" name="man-unit" id="unit-un" value="un" class="hidden" onchange="app.updateManualUnitLabel('un')">
-                        <label for="unit-un" class="p-3 border-2 border-slate-100 rounded-xl text-center text-xs font-bold cursor-pointer transition">Unid. (un)</label>
-                    </div>
-                </div>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Quantidade Ref.</label>
-                        <input type="number" id="man-ref-qty" value="100" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Calorias (Ref.)</label>
-                        <input type="number" id="man-kcal" placeholder="Kcal" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
-                    </div>
+                    <input type="number" id="man-ref-qty" value="100" placeholder="Qtd Ref." class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
+                    <input type="number" id="man-kcal" placeholder="Kcal" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
                 </div>
-
                 <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 text-center">Proteína</label>
-                        <input type="number" step="0.1" id="man-p" placeholder="g" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 text-center">Carbo</label>
-                        <input type="number" step="0.1" id="man-c" placeholder="g" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 text-center">Gordura</label>
-                        <input type="number" step="0.1" id="man-g" placeholder="g" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
-                    </div>
+                    <input type="number" step="0.1" id="man-p" placeholder="P (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
+                    <input type="number" step="0.1" id="man-c" placeholder="C (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
+                    <input type="number" step="0.1" id="man-g" placeholder="G (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
                 </div>
             </div>
 
             <div id="selected-food-area" class="hidden space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex justify-between items-center">
-                    <div class="flex-1 pr-4">
-                        <span id="selected-food-name" class="font-bold text-lg block truncate">Alimento</span>
-                        <span id="selected-food-info-sub" class="text-[10px] text-slate-400 font-bold uppercase">Quantidade Utilizada</span>
-                    </div>
+                    <span id="selected-food-name" class="font-bold text-lg truncate flex-1 pr-4">Alimento</span>
                     <div class="flex items-center gap-2">
-                        <input type="number" id="selected-food-qty" value="100" class="w-24 p-4 bg-slate-100 rounded-2xl text-center font-bold outline-none focus:ring-2 focus:ring-emerald-500">
-                        <span id="selected-food-unit-label" class="text-slate-400 font-bold w-8">g</span>
+                        <input type="number" id="selected-food-qty" value="100" class="w-24 p-4 bg-slate-100 rounded-2xl text-center font-bold outline-none">
+                        <span id="selected-food-unit-label" class="text-slate-400 font-bold">g</span>
                     </div>
                 </div>
-                <button onclick="app.confirmAddFood()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-bold shadow-lg transition hover:bg-slate-800">Salvar Alterações</button>
+                <button onclick="app.confirmAddFood()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-bold shadow-lg">Salvar</button>
             </div>
         </div>
     </div>
@@ -446,12 +411,7 @@
             { id: 4, nome: "Ovo Cozido", kcal: 78, p: 6.3, c: 0.6, g: 5.3, ref: 1, unit: 'un' },
             { id: 5, nome: "Banana Prata", kcal: 90, p: 1.1, c: 23, g: 0.3, ref: 1, unit: 'un' },
             { id: 6, nome: "Pão Integral Fatia", kcal: 70, p: 3, c: 12, g: 1, ref: 1, unit: 'un' },
-            { id: 7, nome: "Azeite de Oliva", kcal: 88, p: 0, c: 0, g: 10, ref: 10, unit: 'ml' },
-            { id: 8, nome: "Batata Doce Cozida", kcal: 86, p: 1.6, c: 20, g: 0.1, ref: 100, unit: 'g' },
-            { id: 9, nome: "Whey Protein (30g)", kcal: 120, p: 24, c: 3, g: 1, ref: 1, unit: 'un' },
-            { id: 11, nome: "Leite Integral", kcal: 60, p: 3.2, c: 4.8, g: 3.3, ref: 100, unit: 'ml' },
-            { id: 12, nome: "Leite Semidesnatado", kcal: 45, p: 3.2, c: 4.8, g: 1.5, ref: 100, unit: 'ml' },
-            { id: 15, nome: "Queijo Mussarela", kcal: 280, p: 22, c: 2, g: 20, ref: 100, unit: 'g' }
+            { id: 11, nome: "Leite Integral", kcal: 60, p: 3.2, c: 4.8, g: 3.3, ref: 100, unit: 'ml' }
         ];
 
         const MEAL_TYPES = [
@@ -466,7 +426,8 @@
 
         class NutriLife {
             constructor() {
-                this.data = JSON.parse(localStorage.getItem('nutrilife_data_v2')) || null;
+                const stored = localStorage.getItem('nutrilife_data_v2');
+                this.data = stored ? JSON.parse(stored) : null;
                 this.activeMealId = null;
                 this.activeDay = this.getCurrentDayLabel();
                 this.selectedFood = null;
@@ -477,24 +438,36 @@
             }
 
             getCurrentDayLabel() {
-                const dayIndex = new Date().getDay();
                 const map = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
-                return map[dayIndex];
+                return map[new Date().getDay()];
             }
 
             init() {
                 lucide.createIcons();
+                
                 if (!this.data) {
                     document.getElementById('onboarding').classList.remove('hidden');
+                    document.getElementById('main-app').classList.add('hidden');
                 } else {
-                    if(!this.data.meusAlimentos) this.data.meusAlimentos = [];
-                    if(!this.data.historicoPeso) this.data.historicoPeso = [];
+                    this.fixDataStructure();
+                    document.getElementById('onboarding').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    this.showTab('home');
                     this.renderAll();
                 }
 
                 document.getElementById('form-cadastro').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.handleCadastro();
+                });
+            }
+
+            fixDataStructure() {
+                if(!this.data.meusAlimentos) this.data.meusAlimentos = [];
+                if(!this.data.historicoPeso) this.data.historicoPeso = [];
+                if(!this.data.refeicoes) this.data.refeicoes = {};
+                DAYS.forEach(d => {
+                    if(!this.data.refeicoes[d]) this.data.refeicoes[d] = { cafe: [], almoco: [], tarde: [], jantar: [], treino: [] };
                 });
             }
 
@@ -507,12 +480,9 @@
                 const sexo = document.getElementById('reg-sexo').value;
                 const treinos = parseInt(document.getElementById('reg-treino').value);
                 const caminha = document.getElementById('reg-caminha').value;
-                const tempoCaminha = parseInt(document.getElementById('reg-caminha-tempo').value);
+                const tempoCaminha = parseInt(document.getElementById('reg-caminha-tempo').value || 0);
 
-                let tmb = (sexo === 'M') 
-                    ? (10 * peso) + (6.25 * altura) - (5 * idade) + 5
-                    : (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
-                
+                let tmb = (sexo === 'M') ? (10 * peso) + (6.25 * altura) - (5 * idade) + 5 : (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
                 let fator = 1.2;
                 if (treinos >= 1 && treinos <= 2) fator = 1.375;
                 else if (treinos >= 3 && treinos <= 5) fator = 1.55;
@@ -522,22 +492,16 @@
                 let metaKcal = Math.round(tmb * fator);
                 if (objetivo === 'emagrecer') metaKcal -= 500;
                 else if (objetivo === 'ganhar') metaKcal += 400;
-                else if (objetivo === 'recomposicao') metaKcal -= 100;
+                else metaKcal -= 100;
 
-                const metaP = objetivo === 'recomposicao' || objetivo === 'ganhar' ? Math.round(peso * 2.2) : Math.round(peso * 1.8);
+                const metaP = Math.round(peso * (objetivo === 'ganhar' ? 2.2 : 1.8));
                 const metaG = Math.round(peso * 0.8);
                 const metaC = Math.round((metaKcal - (metaP * 4) - (metaG * 9)) / 4);
 
                 this.data = {
                     perfil: { nome, idade, peso, altura, objetivo, metaKcal, metaP, metaC, metaG, treinos, caminha },
-                    refeicoes: {},
-                    meusAlimentos: [],
-                    historicoPeso: [{ 
-                        id: Date.now(),
-                        data: new Date().toLocaleDateString('pt-BR'), 
-                        peso: peso,
-                        timestamp: Date.now()
-                    }]
+                    refeicoes: {}, meusAlimentos: [],
+                    historicoPeso: [{ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), peso: peso, timestamp: Date.now() }]
                 };
 
                 DAYS.forEach(d => {
@@ -547,6 +511,8 @@
 
                 this.save();
                 document.getElementById('onboarding').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                this.showTab('home');
                 this.renderAll();
             }
 
@@ -555,73 +521,25 @@
                 document.getElementById('reg-idade').value = "30";
                 document.getElementById('reg-peso').value = "75";
                 document.getElementById('reg-altura').value = "175";
-                document.getElementById('reg-treino').value = "4";
                 document.getElementById('form-cadastro').querySelector('button[type="submit"]').click();
             }
 
-            save() {
-                localStorage.setItem('nutrilife_data_v2', JSON.stringify(this.data));
-            }
+            save() { localStorage.setItem('nutrilife_data_v2', JSON.stringify(this.data)); }
 
-            resetData() {
-                if(confirm("Deseja apagar tudo?")) {
-                    localStorage.removeItem('nutrilife_data_v2');
-                    location.reload();
-                }
-            }
+            resetData() { if(confirm("Deseja apagar tudo?")) { localStorage.removeItem('nutrilife_data_v2'); location.reload(); } }
 
-            changeDay(day) {
-                this.activeDay = day;
-                this.renderAll();
-            }
+            changeDay(day) { this.activeDay = day; this.renderAll(); }
 
             showTab(tab) {
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById('tab-' + tab).classList.add('active');
-                
                 document.querySelectorAll('.nav-link').forEach(l => {
-                    l.classList.remove('text-emerald-600', 'bg-emerald-50');
-                    l.classList.add('text-slate-400');
-                    if(l.dataset.tab === tab) {
-                        l.classList.add('text-emerald-600', 'bg-emerald-50');
-                        l.classList.remove('text-slate-400');
-                    }
+                    l.classList.toggle('text-emerald-600', l.dataset.tab === tab);
+                    l.classList.toggle('bg-emerald-50', l.dataset.tab === tab && window.innerWidth >= 768);
+                    if(l.dataset.tab !== tab) l.classList.add('text-slate-400');
                 });
-
-                const titles = { home: 'Início', plano: 'Meu Plano', progresso: 'Progresso', perfil: 'Meu Perfil' };
-                document.getElementById('tab-title-mobile').innerText = titles[tab];
-                if(tab === 'progresso') {
-                    this.renderChart();
-                    this.renderWeightHistory();
-                }
-                this.renderOrientation();
-            }
-
-            cloneMonday() {
-                const monData = this.data.refeicoes['seg'];
-                if(MEAL_TYPES.reduce((acc, m) => acc + monData[m.id].length, 0) === 0) return alert("Segunda-feira vazia.");
-                if(confirm("Copiar alimentação da segunda para os demais dias?")) {
-                    DAYS.forEach(day => {
-                        if(day !== 'seg') {
-                            this.data.refeicoes[day] = JSON.parse(JSON.stringify(monData));
-                            MEAL_TYPES.forEach(m => this.data.refeicoes[day][m.id + '_status'] = false);
-                        }
-                    });
-                    this.save();
-                    this.renderAll();
-                }
-            }
-
-            resetWeeklyStatus() {
-                if (confirm("Deseja resetar o status de conclusão de todos os dias da semana? Seus alimentos cadastrados não serão apagados.")) {
-                    DAYS.forEach(day => {
-                        MEAL_TYPES.forEach(type => {
-                            this.data.refeicoes[day][type.id + '_status'] = false;
-                        });
-                    });
-                    this.save();
-                    this.renderAll();
-                }
+                document.getElementById('tab-title-mobile').innerText = {home:'Início', plano:'Plano', progresso:'Evolução', perfil:'Perfil'}[tab];
+                if(tab === 'progresso') { this.renderChart(); this.renderWeightHistory(); }
             }
 
             renderAll() {
@@ -635,41 +553,8 @@
                 document.getElementById('user-name-display').innerText = this.data.perfil.nome.split(' ')[0];
                 document.getElementById('display-day-title').innerText = "Resumo - " + this.activeDay.toUpperCase();
                 document.getElementById('profile-name').innerText = this.data.perfil.nome;
-                document.getElementById('profile-goal').innerText = "Objetivo: " + this.data.perfil.objetivo.replace('recomposicao', 'Recomposição').toUpperCase();
+                document.getElementById('profile-goal').innerText = "Objetivo: " + this.data.perfil.objetivo.toUpperCase();
                 lucide.createIcons();
-            }
-
-            renderOrientation() {
-                const consumed = this.calculateTotals(this.activeDay, true);
-                const meta = this.data.perfil;
-                const container = document.getElementById('orientation-card');
-                const content = document.getElementById('orientation-content');
-                
-                const diffs = [
-                    { label: 'CALORIAS', key: 'kcal', icon: '🔥', atual: consumed.kcal, meta: meta.metaKcal, unit: 'kcal' },
-                    { label: 'PROTEÍNAS', key: 'p', icon: '🥩', atual: consumed.p, meta: meta.metaP, unit: 'g' },
-                    { label: 'CARBOIDRATOS', key: 'c', icon: '🍚', atual: consumed.c, meta: meta.metaC, unit: 'g' },
-                    { label: 'GORDURAS', key: 'g', icon: '🥑', atual: consumed.g, meta: meta.metaG, unit: 'g' }
-                ];
-                
-                const faltantes = diffs.filter(d => d.atual < d.meta);
-                if(faltantes.length === 0) {
-                    container.classList.remove('hidden');
-                    content.innerHTML = `<p class="font-bold text-lg">✓ Metas alcançadas!</p>`;
-                    return;
-                }
-                
-                faltantes.sort((a,b) => (a.atual / a.meta) - (b.atual / b.meta));
-                const foco = faltantes[0];
-                container.classList.remove('hidden');
-                let html = `<p class="text-xl font-black mb-1">${foco.icon} Foco: ${foco.label}</p>
-                            <p class="text-xs opacity-90 mb-4">Faltam ${Math.round(foco.meta - foco.atual)} ${foco.unit} consumidos para a meta.</p>
-                            <div class="grid grid-cols-2 gap-2">`;
-                faltantes.slice(1).forEach(item => {
-                    html += `<div class="bg-white/10 p-2 rounded-xl text-[10px]"><b>${item.icon} ${item.label}:</b> -${Math.round(item.meta - item.atual)}</div>`;
-                });
-                html += `</div>`;
-                content.innerHTML = html;
             }
 
             updateDashboard() {
@@ -691,27 +576,22 @@
                 document.getElementById('kcal-atual').innerText = restKcal;
                 document.getElementById('kcal-meta').innerText = meta.metaKcal;
                 document.getElementById('kcal-restante').innerText = restKcal > 0 ? `Restam ${restKcal} kcal` : `Meta atingida!`;
-                
                 document.getElementById('kcal-ring').style.strokeDashoffset = 364.4 - (Math.min(consumed.kcal / meta.metaKcal, 1) * 364.4);
                 
                 ['p','c','g'].forEach(m => {
-                    const metaVal = m === 'p' ? meta.metaP : m === 'c' ? meta.metaC : meta.metaG;
+                    const metaVal = meta['meta' + m.toUpperCase()];
                     const restVal = Math.max(0, metaVal - consumed[m]);
                     document.getElementById(`${m}-atual`).innerText = restVal + 'g';
                     document.getElementById(`${m}-bar`).style.width = Math.min(consumed[m] / metaVal, 1) * 100 + '%';
                 });
             }
 
-            calculateTotals(day, onlyConcluded = false) {
+            calculateTotals(day, onlyConcluded) {
                 let totals = { kcal: 0, p: 0, c: 0, g: 0 };
                 MEAL_TYPES.forEach(type => {
-                    const isConcluded = this.data.refeicoes[day][type.id + '_status'];
-                    if (!onlyConcluded || (onlyConcluded && isConcluded)) {
+                    if (!onlyConcluded || this.data.refeicoes[day][type.id + '_status']) {
                         this.data.refeicoes[day][type.id].forEach(item => {
-                            totals.kcal += item.totalKcal;
-                            totals.p += item.totalP;
-                            totals.c += item.totalC;
-                            totals.g += item.totalG;
+                            totals.kcal += item.totalKcal; totals.p += item.totalP; totals.c += item.totalC; totals.g += item.totalG;
                         });
                     }
                 });
@@ -726,13 +606,8 @@
                     const isDone = dayData[type.id + '_status'];
                     return `<div class="bg-white p-5 rounded-3xl border border-slate-100 flex items-center justify-between shadow-sm cursor-pointer ${isDone ? 'border-l-8 border-l-emerald-500' : ''}" onclick="app.showTab('plano')">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 ${isDone ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} rounded-2xl flex items-center justify-center">
-                                <i data-lucide="${isDone ? 'check-circle' : type.icon}"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-sm">${type.label}</h4>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase">${dayData[type.id].length} itens • ${kcal} kcal</p>
-                            </div>
+                            <div class="w-12 h-12 ${isDone ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} rounded-2xl flex items-center justify-center"><i data-lucide="${isDone ? 'check-circle' : type.icon}"></i></div>
+                            <div><h4 class="font-bold text-sm">${type.label}</h4><p class="text-[10px] text-slate-400 font-bold uppercase">${dayData[type.id].length} itens • ${kcal} kcal</p></div>
                         </div>
                         <i data-lucide="chevron-right" class="text-slate-300 w-5 h-5"></i>
                     </div>`;
@@ -745,51 +620,24 @@
                 document.getElementById('full-meals-list').innerHTML = MEAL_TYPES.map(type => {
                     const kcal = Math.round(dayData[type.id].reduce((acc, i) => acc + i.totalKcal, 0));
                     const isDone = dayData[type.id + '_status'];
-                    const targetKcal = this.data.perfil.metaKcal * type.pct;
-                    let statusColor = "text-slate-400";
-                    let statusLabel = isDone ? "✓ CONCLUÍDO" : "Pendente";
-                    if(kcal > 0 && !isDone) {
-                        const diff = (kcal / targetKcal);
-                        if(diff >= 0.85 && diff <= 1.15) { statusColor = "text-emerald-500"; statusLabel = "🟢 No Planejado"; }
-                        else if(diff < 0.85) { statusColor = "text-amber-500"; statusLabel = "🟡 Abaixo do Planejado"; }
-                        else { statusColor = "text-orange-500"; statusLabel = "🟠 Acima do Planejado"; }
-                    }
-
-                    return `<div class="space-y-4 p-4 rounded-[2.5rem] transition-colors ${isDone ? 'bg-emerald-50/50' : 'bg-transparent'}">
+                    return `<div class="space-y-4 p-4 rounded-[2.5rem] ${isDone ? 'bg-emerald-50/50' : ''}">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-3">
                                 <i data-lucide="${type.icon}" class="${isDone ? 'text-emerald-600' : 'text-slate-400'} w-6 h-6"></i>
-                                <div>
-                                    <h3 class="text-xl font-black">${type.label}</h3>
-                                    <p class="text-[9px] font-black uppercase ${isDone ? 'text-emerald-600' : statusColor}">${statusLabel}</p>
-                                </div>
+                                <h3 class="text-xl font-black">${type.label}</h3>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="app.openFoodModal('${type.id}')" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-slate-200 transition">+ Add</button>
-                                <button onclick="app.toggleMealStatus('${type.id}')" class="${isDone ? 'bg-emerald-600 text-white shadow-emerald-100' : 'bg-white border border-slate-200 text-slate-400'} px-3 py-2 rounded-xl text-[10px] font-bold shadow-sm transition">${isDone ? '✓' : 'Concluir'}</button>
+                                <button onclick="app.openFoodModal('${type.id}')" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-[10px] font-bold">+ Add</button>
+                                <button onclick="app.toggleMealStatus('${type.id}')" class="${isDone ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-400'} px-3 py-2 rounded-xl text-[10px] font-bold shadow-sm">${isDone ? '✓' : 'Concluir'}</button>
                             </div>
                         </div>
                         <div class="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
                             ${dayData[type.id].length === 0 ? `<div class="p-8 text-center text-slate-400 text-xs italic">Nenhum alimento.</div>` : `
                                 <div class="divide-y divide-slate-50">
                                     ${dayData[type.id].map((item, idx) => `
-                                        <div class="p-5 flex justify-between items-start group">
-                                            <div class="flex-1 pr-4">
-                                                <p class="font-bold text-sm text-slate-800 leading-tight mb-1">${item.nome}</p>
-                                                <div class="bg-slate-50 rounded-xl p-2 mt-1 inline-block border border-slate-100">
-                                                    <p class="text-[9px] text-slate-400 font-bold mb-1">DADOS PARA ${item.qty}${item.unit}</p>
-                                                    <div class="flex gap-3 text-[10px] font-black">
-                                                        <span class="text-emerald-600">🔥 ${Math.round(item.totalKcal)} kcal</span>
-                                                        <span class="text-rose-500">🥩 P: ${item.totalP}g</span>
-                                                        <span class="text-amber-500">🍚 C: ${item.totalC}g</span>
-                                                        <span class="text-sky-500">🥑 G: ${item.totalG}g</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-1">
-                                                <button onclick="app.editAddedItem('${type.id}', ${idx})" class="text-slate-200 hover:text-emerald-500 p-2 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                                <button onclick="app.removeFood('${type.id}', ${idx})" class="text-slate-200 hover:text-rose-500 p-2 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                            </div>
+                                        <div class="p-5 flex justify-between items-center group">
+                                            <div><p class="font-bold text-sm">${item.nome}</p><p class="text-[10px] font-black text-emerald-600 uppercase">${Math.round(item.totalKcal)} kcal • ${item.qty}${item.unit}</p></div>
+                                            <div class="flex gap-1"><button onclick="app.removeFood('${type.id}', ${idx})" class="text-slate-200 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
                                         </div>
                                     `).join('')}
                                 </div>
@@ -800,378 +648,145 @@
                 lucide.createIcons();
             }
 
-            editAddedItem(mealId, index) {
-                const item = this.data.refeicoes[this.activeDay][mealId][index];
-                this.editingItemInfo = { day: this.activeDay, mealId, index };
-                document.getElementById('modal-food-title').innerText = "Editar Alimento";
-                document.getElementById('modal-food-tabs').style.display = "none";
-                document.getElementById('area-search').style.display = "none";
-                document.getElementById('area-manual').style.display = "block";
-                document.getElementById('man-nome').value = item.nome;
-                document.getElementById('man-ref-qty').value = item.ref || 100;
-                document.getElementById('man-kcal').value = item.refKcal || Math.round((item.totalKcal / item.qty) * (item.ref || 100));
-                document.getElementById('man-p').value = item.refP || (item.totalP / item.qty) * (item.ref || 100);
-                document.getElementById('man-c').value = item.refC || (item.totalC / item.qty) * (item.ref || 100);
-                document.getElementById('man-g').value = item.refG || (item.totalG / item.qty) * (item.ref || 100);
-                const unitId = `unit-${item.unit === 'g' ? 'g' : item.unit === 'ml' ? 'ml' : 'un'}`;
-                document.getElementById(unitId).checked = true;
-                this.selectedFood = { isManual: true };
-                document.getElementById('selected-food-area').classList.remove('hidden');
-                document.getElementById('selected-food-name').innerText = item.nome;
-                document.getElementById('selected-food-qty').value = item.qty;
-                document.getElementById('selected-food-unit-label').innerText = item.unit;
-                document.getElementById('modal-food').classList.remove('hidden');
-            }
-
-            toggleMealStatus(mealId) {
-                this.data.refeicoes[this.activeDay][mealId + '_status'] = !this.data.refeicoes[this.activeDay][mealId + '_status'];
-                this.save(); this.renderAll();
-            }
+            toggleMealStatus(mealId) { this.data.refeicoes[this.activeDay][mealId + '_status'] = !this.data.refeicoes[this.activeDay][mealId + '_status']; this.save(); this.renderAll(); }
 
             openFoodModal(mealId) {
-                this.activeMealId = mealId;
-                this.editingItemInfo = null;
-                document.getElementById('modal-food-title').innerText = "Adicionar Alimento";
-                document.getElementById('modal-food-tabs').style.display = "flex";
+                this.activeMealId = mealId; this.editingItemInfo = null;
                 document.getElementById('modal-food').classList.remove('hidden');
                 this.setModalTab('search');
-                this.searchFood();
             }
 
-            openPermanentFoodModal() {
-                this.editingPermanentId = null;
-                document.getElementById('modal-food-title').innerText = "Novo Alimento Permanente";
-                document.getElementById('modal-food-tabs').style.display = "none";
-                this.setModalTab('manual');
-                document.getElementById('modal-food').classList.remove('hidden');
+            setModalTab(tab) {
+                const isS = tab === 'search';
+                document.getElementById('area-search').style.display = isS ? 'block' : 'none';
+                document.getElementById('area-manual').style.display = isS ? 'none' : 'block';
+                document.getElementById('selected-food-area').classList.toggle('hidden', isS);
+                if(!isS) this.selectedFood = { isManual: true };
             }
 
-            editPermanentFood(id) {
-                const food = this.data.meusAlimentos.find(f => f.id === id);
-                if(!food) return;
-                this.editingPermanentId = id;
-                document.getElementById('modal-food-title').innerText = "Editar Permanente";
-                document.getElementById('modal-food-tabs').style.display = "none";
-                this.setModalTab('manual');
-                document.getElementById('man-nome').value = food.nome;
-                document.getElementById('man-ref-qty').value = food.ref;
-                document.getElementById('man-kcal').value = food.kcal;
-                document.getElementById('man-p').value = food.p;
-                document.getElementById('man-c').value = food.c;
-                document.getElementById('man-g').value = food.g;
-                const unitId = `unit-${food.unit === 'g' ? 'g' : food.unit === 'ml' ? 'ml' : 'un'}`;
-                document.getElementById(unitId).checked = true;
-                document.getElementById('modal-food').classList.remove('hidden');
-            }
-
-            deletePermanentFood(id) {
-                if(confirm("Deseja realmente excluir este alimento da sua lista de alimentos personalizados?")) {
-                    this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id);
-                    this.save(); this.renderAll();
-                }
-            }
-
-            renderPermanentFoods() {
-                const container = document.getElementById('my-permanent-foods-list');
-                if(!this.data.meusAlimentos.length) {
-                    container.innerHTML = `<p class="text-center text-slate-400 text-[10px] py-4 italic">Nenhum alimento cadastrado.</p>`;
-                    return;
-                }
-                container.innerHTML = this.data.meusAlimentos.map(f => `
-                    <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-                        <div class="flex-1">
-                            <span class="font-bold text-sm block">${f.nome}</span>
-                            <span class="text-[9px] font-black uppercase text-slate-400">${f.kcal} kcal em ${f.ref}${f.unit}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="app.editPermanentFood(${f.id})" class="text-slate-300 hover:text-emerald-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="app.deletePermanentFood(${f.id})" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-                lucide.createIcons();
-            }
-
-            closeFoodModal() {
-                document.getElementById('modal-food').classList.add('hidden');
-                this.selectedFood = null;
-                ['man-nome','man-kcal','man-p','man-c','man-g'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('man-ref-qty').value = 100;
-                this.editingPermanentId = null;
-            }
+            closeFoodModal() { document.getElementById('modal-food').classList.add('hidden'); this.selectedFood = null; }
 
             searchFood() {
                 const term = document.getElementById('food-search').value.toLowerCase();
-                const container = document.getElementById('search-results');
-                const fullList = [...BASE_DATABASE, ...this.data.meusAlimentos];
-                const filtered = term.length < 1 ? fullList.slice(-10) : fullList.filter(f => f.nome.toLowerCase().includes(term));
-                container.innerHTML = filtered.map(f => `<div onclick="app.selectFoodById(${f.id})" class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-emerald-50 transition border-2 border-transparent hover:border-emerald-100">
-                    <div class="flex-1 pr-4">
-                        <span class="font-bold text-slate-700 text-sm block truncate">${f.nome}</span>
-                        <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">${f.isCustom ? '⭐ Personalizado' : 'Base'} • ${f.kcal} kcal</span>
-                    </div>
-                    <i data-lucide="chevron-right" class="text-slate-300 w-4 h-4"></i>
-                </div>`).join('');
-                lucide.createIcons();
+                const list = [...BASE_DATABASE, ...this.data.meusAlimentos];
+                const res = term.length < 1 ? list.slice(0, 5) : list.filter(f => f.nome.toLowerCase().includes(term));
+                document.getElementById('search-results').innerHTML = res.map(f => `<div onclick="app.selectFoodById(${f.id})" class="p-4 bg-slate-50 rounded-2xl mb-2 cursor-pointer font-bold text-sm">${f.nome} <span class="text-[9px] opacity-50 ml-2">${f.kcal} kcal</span></div>`).join('');
             }
 
             selectFoodById(id) {
-                const fullList = [...BASE_DATABASE, ...this.data.meusAlimentos];
-                this.selectedFood = fullList.find(f => f.id === id);
+                this.selectedFood = [...BASE_DATABASE, ...this.data.meusAlimentos].find(f => f.id === id);
                 document.getElementById('selected-food-name').innerText = this.selectedFood.nome;
-                document.getElementById('selected-food-qty').value = this.selectedFood.ref || 100;
-                document.getElementById('selected-food-unit-label').innerText = this.selectedFood.unit || 'g';
                 document.getElementById('selected-food-area').classList.remove('hidden');
-                document.getElementById('search-results').innerHTML = '';
+                document.getElementById('selected-food-unit-label').innerText = this.selectedFood.unit;
             }
 
             confirmAddFood() {
                 const qty = parseFloat(document.getElementById('selected-food-qty').value);
-                const nome = document.getElementById('man-nome').value.trim();
-                const unit = document.querySelector('input[name="man-unit"]:checked').value;
-                const ref = parseFloat(document.getElementById('man-ref-qty').value) || 100;
-                const rKcal = parseFloat(document.getElementById('man-kcal').value) || 0;
-                const rP = parseFloat(document.getElementById('man-p').value) || 0;
-                const rC = parseFloat(document.getElementById('man-c').value) || 0;
-                const rG = parseFloat(document.getElementById('man-g').value) || 0;
-
-                if(this.editingPermanentId || (this.selectedFood?.isManual && !this.activeMealId)) {
-                    if(!nome) return alert("Dê um nome ao alimento.");
-                    const foodData = { id: this.editingPermanentId || Date.now(), nome, kcal: rKcal, p: rP, c: rC, g: rG, unit, ref, isCustom: true };
-                    if(this.editingPermanentId) {
-                        const idx = this.data.meusAlimentos.findIndex(f => f.id === this.editingPermanentId);
-                        this.data.meusAlimentos[idx] = foodData;
-                    } else {
-                        this.data.meusAlimentos.push(foodData);
-                    }
-                    this.save(); this.closeFoodModal(); this.renderAll();
-                    return;
+                if(!qty || !this.selectedFood) return;
+                
+                let factor = qty / (this.selectedFood.ref || 100);
+                if(this.selectedFood.isManual) {
+                    const rK = parseFloat(document.getElementById('man-kcal').value);
+                    const rP = parseFloat(document.getElementById('man-p').value);
+                    const rC = parseFloat(document.getElementById('man-c').value);
+                    const rG = parseFloat(document.getElementById('man-g').value);
+                    const name = document.getElementById('man-nome').value;
+                    const refQ = parseFloat(document.getElementById('man-ref-qty').value);
+                    factor = qty / refQ;
+                    this.selectedFood = { nome: name, kcal: rK, p: rP, c: rC, g: rG, ref: refQ, unit: document.querySelector('input[name="man-unit"]:checked').value };
                 }
 
-                if(isNaN(qty) || qty <= 0) return alert("Insira uma quantidade válida.");
-                let newItem;
-                if (this.selectedFood?.isManual) {
-                    if(!nome) return alert("Dê um nome ao alimento.");
-                    const factor = qty / ref;
-                    newItem = { nome, qty, unit, ref, refKcal: rKcal, refP: rP, refC: rC, refG: rG, totalKcal: rKcal * factor, totalP: parseFloat((rP * factor).toFixed(1)), totalC: parseFloat((rC * factor).toFixed(1)), totalG: parseFloat((rG * factor).toFixed(1)) };
-                } else if (this.selectedFood) {
-                    const factor = qty / (this.selectedFood.ref || 100);
-                    newItem = { nome: this.selectedFood.nome, qty, unit: this.selectedFood.unit || 'g', ref: this.selectedFood.ref || 100, totalKcal: this.selectedFood.kcal * factor, totalP: parseFloat((this.selectedFood.p * factor).toFixed(1)), totalC: parseFloat((this.selectedFood.c * factor).toFixed(1)), totalG: parseFloat((this.selectedFood.g * factor).toFixed(1)) };
-                }
-                if(newItem) {
-                    if(this.editingItemInfo) {
-                        this.data.refeicoes[this.editingItemInfo.day][this.editingItemInfo.mealId][this.editingItemInfo.index] = newItem;
-                    } else {
-                        this.data.refeicoes[this.activeDay][this.activeMealId].push(newItem);
-                    }
-                    this.save(); this.closeFoodModal(); this.renderAll();
-                }
+                const item = {
+                    nome: this.selectedFood.nome, qty, unit: this.selectedFood.unit,
+                    totalKcal: this.selectedFood.kcal * factor,
+                    totalP: this.selectedFood.p * factor, totalC: this.selectedFood.c * factor, totalG: this.selectedFood.g * factor
+                };
+
+                this.data.refeicoes[this.activeDay][this.activeMealId].push(item);
+                this.save(); this.closeFoodModal(); this.renderAll();
             }
 
-            removeFood(mealId, index) {
-                if(confirm("Remover este alimento?")) {
-                    this.data.refeicoes[this.activeDay][mealId].splice(index, 1);
-                    this.save(); this.renderAll();
-                }
-            }
+            removeFood(mId, idx) { this.data.refeicoes[this.activeDay][mId].splice(idx, 1); this.save(); this.renderAll(); }
 
-            // --- LÓGICA DE HISTÓRICO DE PESO ---
+            // HISTÓRICO DE PESO
             addWeightRecord() {
                 const w = parseFloat(document.getElementById('new-weight').value);
                 if(!w) return;
-                const now = new Date();
-                const record = { 
-                    id: Date.now(),
-                    data: now.toLocaleDateString('pt-BR'), 
-                    peso: w,
-                    timestamp: now.getTime()
-                };
-                this.data.historicoPeso.push(record);
+                this.data.historicoPeso.push({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), peso: w, timestamp: Date.now() });
                 this.data.perfil.peso = w;
-                this.save(); 
-                document.getElementById('new-weight').value = '';
-                this.renderWeightHistory(); 
-                this.renderChart();
-            }
-
-            deleteWeightRecord(id) {
-                if (confirm("Deseja realmente excluir este registro de peso?")) {
-                    this.data.historicoPeso = this.data.historicoPeso.filter(r => r.id !== id);
-                    if (this.data.historicoPeso.length > 0) {
-                        this.data.perfil.peso = this.data.historicoPeso[this.data.historicoPeso.length - 1].peso;
-                    }
-                    this.save();
-                    this.renderWeightHistory();
-                    this.renderChart();
-                }
-            }
-
-            editWeightRecord(id) {
-                const record = this.data.historicoPeso.find(r => r.id === id);
-                if (!record) return;
-                const newPeso = prompt("Editar Peso (kg):", record.peso);
-                if (newPeso === null) return;
-                const newDate = prompt("Editar Data (DD/MM/AAAA):", record.data);
-                if (newDate === null) return;
-
-                const dateParts = newDate.split('/');
-                if (dateParts.length === 3) {
-                    const parsedDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-                    if (!isNaN(parsedDate.getTime())) {
-                        record.peso = parseFloat(newPeso);
-                        record.data = newDate;
-                        record.timestamp = parsedDate.getTime();
-                        
-                        this.data.historicoPeso.sort((a, b) => a.timestamp - b.timestamp);
-                        this.data.perfil.peso = this.data.historicoPeso[this.data.historicoPeso.length - 1].peso;
-                        
-                        this.save();
-                        this.renderWeightHistory();
-                        this.renderChart();
-                    } else {
-                        alert("Data inválida.");
-                    }
-                }
+                this.save(); document.getElementById('new-weight').value = '';
+                this.renderWeightHistory(); this.renderChart();
             }
 
             renderWeightHistory() {
-                const history = [...this.data.historicoPeso].sort((a, b) => b.timestamp - a.timestamp);
+                const history = [...this.data.historicoPeso].sort((a,b) => b.timestamp - a.timestamp);
                 const filter = document.getElementById('weight-month-filter');
-                const listContainer = document.getElementById('weight-history');
-                const summaryContainer = document.getElementById('monthly-weight-summary');
-                const selectedMonth = filter.value;
+                const selected = filter.value;
 
-                // Popular filtro de meses
-                const monthsSet = new Set();
-                history.forEach(r => {
-                    const parts = r.data.split('/');
-                    monthsSet.add(`${parts[1]}/${parts[2]}`);
-                });
-                
-                const currentFilterVal = filter.value;
-                filter.innerHTML = '<option value="all">TODOS</option>';
-                Array.from(monthsSet).sort((a, b) => {
-                    const [m1, y1] = a.split('/');
-                    const [m2, y2] = b.split('/');
-                    return new Date(y2, m2-1) - new Date(y1, m1-1);
-                }).forEach(m => {
-                    const date = new Date(m.split('/')[1], m.split('/')[0] - 1);
-                    const label = date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-                    filter.innerHTML += `<option value="${m}">${label}</option>`;
-                });
-                filter.value = currentFilterVal;
+                const months = new Set();
+                history.forEach(r => months.add(r.data.split('/')[1] + '/' + r.data.split('/')[2]));
+                filter.innerHTML = '<option value="all">TODOS</option>' + Array.from(months).map(m => `<option value="${m}">${m}</option>`).join('');
+                filter.value = selected;
 
-                // Filtrar e Agrupar
-                let filtered = selectedMonth === 'all' ? history : history.filter(r => r.data.includes(selectedMonth));
-                
-                // Calcular Sumário Mensal
-                if (selectedMonth !== 'all' && filtered.length > 0) {
-                    const chronologic = [...filtered].sort((a, b) => a.timestamp - b.timestamp);
-                    const first = chronologic[0].peso;
-                    const last = chronologic[chronologic.length - 1].peso;
-                    const diff = (last - first).toFixed(1);
-                    const diffLabel = diff > 0 ? `+${diff}` : diff;
-                    const diffColor = diff > 0 ? 'text-rose-500' : diff < 0 ? 'text-emerald-500' : 'text-slate-400';
-
-                    summaryContainer.innerHTML = `
-                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">Primeiro</p>
-                            <p class="text-sm font-black">${first}kg</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">Último</p>
-                            <p class="text-sm font-black">${last}kg</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">Variação</p>
-                            <p class="text-sm font-black ${diffColor}">${diffLabel}kg</p>
-                        </div>
-                    `;
-                    summaryContainer.style.display = 'grid';
-                } else {
-                    summaryContainer.style.display = 'none';
-                }
-
-                // Renderizar Itens
-                if (filtered.length === 0) {
-                    listContainer.innerHTML = `<p class="text-center text-slate-400 text-xs py-10 italic">Nenhum registro encontrado.</p>`;
-                    return;
-                }
-
-                let html = "";
-                let lastMonthGroup = "";
-
-                filtered.forEach((r, idx) => {
-                    const parts = r.data.split('/');
-                    const monthGroup = `${parts[1]}/${parts[2]}`;
-                    
-                    if (selectedMonth === 'all' && monthGroup !== lastMonthGroup) {
-                        const date = new Date(parts[2], parts[1] - 1);
-                        html += `<h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-6 mb-2 px-2">${date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}</h4>`;
-                        lastMonthGroup = monthGroup;
-                    }
-
-                    // Variação com o registro anterior (cronológico)
-                    const chronologicFull = [...this.data.historicoPeso].sort((a, b) => a.timestamp - b.timestamp);
-                    const currentIdx = chronologicFull.findIndex(item => item.id === r.id);
-                    let rowDiffHtml = "";
-                    if (currentIdx > 0) {
-                        const prevPeso = chronologicFull[currentIdx - 1].peso;
-                        const d = (r.peso - prevPeso).toFixed(1);
-                        const dLabel = d > 0 ? `+${d}` : d;
-                        const dColor = d > 0 ? 'bg-rose-50 text-rose-500' : d < 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400';
-                        rowDiffHtml = `<span class="text-[9px] font-black px-2 py-1 rounded-lg ${dColor}">${dLabel}kg</span>`;
-                    }
-
-                    html += `
-                        <div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center group">
-                            <div class="flex items-center gap-4">
-                                <div class="text-left">
-                                    <span class="text-[10px] text-slate-400 font-bold block">${r.data}</span>
-                                    <span class="font-black text-slate-800 text-lg">${r.peso} kg</span>
-                                </div>
-                                ${rowDiffHtml}
-                            </div>
-                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="app.editWeightRecord(${r.id})" class="text-slate-300 hover:text-emerald-500 p-2"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                                <button onclick="app.deleteWeightRecord(${id = r.id})" class="text-slate-300 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-                listContainer.innerHTML = html;
+                const filtered = selected === 'all' ? history : history.filter(r => r.data.includes(selected));
+                document.getElementById('weight-history').innerHTML = filtered.map(r => `
+                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                        <div><span class="text-[10px] text-slate-400 font-bold block">${r.data}</span><span class="font-black text-lg">${r.peso} kg</span></div>
+                        <button onclick="app.deleteWeightRecord(${r.id})" class="text-slate-200 hover:text-rose-500 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>`).join('');
                 lucide.createIcons();
+            }
+
+            deleteWeightRecord(id) {
+                if(confirm("Excluir registro?")) {
+                    this.data.historicoPeso = this.data.historicoPeso.filter(r => r.id !== id);
+                    this.save(); this.renderWeightHistory(); this.renderChart();
+                }
             }
 
             renderChart() {
                 const canvas = document.getElementById('weightChart');
                 if(!canvas) return;
-                const ctx = canvas.getContext('2d');
                 if(this.chart) this.chart.destroy();
-                
-                const sorted = [...this.data.historicoPeso].sort((a, b) => a.timestamp - b.timestamp);
-                
-                this.chart = new Chart(ctx, {
+                const sorted = [...this.data.historicoPeso].sort((a,b) => a.timestamp - b.timestamp);
+                this.chart = new Chart(canvas.getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: sorted.map(r => r.data),
-                        datasets: [{
-                            label: 'Peso (kg)',
-                            data: sorted.map(r => r.peso),
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 4, fill: true, tension: 0.4
-                        }]
+                        labels: sorted.map(r => r.data.split('/')[0] + '/' + r.data.split('/')[1]),
+                        datasets: [{ data: sorted.map(r => r.peso), borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16,185,129,0.1)' }]
                     },
-                    options: { 
-                        plugins: { legend: { display: false } }, 
-                        scales: { 
-                            y: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }, 
-                            x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } } 
-                        } 
-                    }
+                    options: { plugins: { legend: { display: false } }, scales: { y: { grid: { display: false } }, x: { grid: { display: false } } } }
                 });
             }
+
+            cloneMonday() {
+                const mon = this.data.refeicoes['seg'];
+                if(confirm("Copiar segunda para a semana?")) {
+                    DAYS.forEach(d => { if(d !== 'seg') this.data.refeicoes[d] = JSON.parse(JSON.stringify(mon)); });
+                    this.save(); this.renderAll();
+                }
+            }
+
+            resetWeeklyStatus() {
+                DAYS.forEach(d => MEAL_TYPES.forEach(m => this.data.refeicoes[d][m.id + '_status'] = false));
+                this.save(); this.renderAll();
+            }
+
+            renderOrientation() {
+                const consumed = this.calculateTotals(this.activeDay, true);
+                const meta = this.data.perfil;
+                const container = document.getElementById('orientation-card');
+                if(consumed.kcal > 0) {
+                    container.classList.remove('hidden');
+                    document.getElementById('orientation-content').innerHTML = `<p class="text-sm font-bold">Você já consumiu ${Math.round((consumed.kcal/meta.metaKcal)*100)}% da sua meta diária.</p>`;
+                }
+            }
+
+            renderPermanentFoods() {
+                document.getElementById('my-permanent-foods-list').innerHTML = this.data.meusAlimentos.map(f => `<div class="p-3 bg-slate-50 rounded-xl mb-2 text-sm font-bold">${f.nome}</div>`).join('');
+            }
+            openPermanentFoodModal() { this.activeMealId = null; document.getElementById('modal-food').classList.remove('hidden'); this.setModalTab('manual'); }
+            updateManualUnitLabel(u) { /* label update logic */ }
         }
 
         const app = new NutriLife();
