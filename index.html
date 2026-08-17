@@ -264,7 +264,6 @@
                         <button onclick="app.cloneMonday()" class="bg-indigo-100 text-indigo-700 px-5 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-indigo-200 transition">
                             <i data-lucide="copy"></i> Copiar Segunda para a Semana
                         </button>
-                        <!-- NOVA FUNCIONALIDADE: BOTÃO RESETAR SEMANA -->
                         <button onclick="app.resetWeeklyStatus()" class="bg-rose-100 text-rose-700 px-5 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-rose-200 transition">
                             <i data-lucide="rotate-ccw"></i> Resetar Concluídos da Semana
                         </button>
@@ -286,7 +285,22 @@
                         <button onclick="app.addWeightRecord()" class="bg-slate-900 text-white px-8 rounded-2xl font-bold">Salvar</button>
                     </div>
                 </div>
-                <div id="weight-history" class="space-y-3"></div>
+
+                <!-- NOVA FUNCIONALIDADE: HISTÓRICO DE PESOS -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between px-2">
+                        <h3 class="text-xl font-extrabold">📅 Histórico</h3>
+                        <select id="weight-month-filter" onchange="app.renderWeightHistory()" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none">
+                            <option value="all">TODOS</option>
+                        </select>
+                    </div>
+
+                    <!-- SUMÁRIO MENSAL -->
+                    <div id="monthly-weight-summary" class="grid grid-cols-3 gap-3"></div>
+
+                    <!-- LISTA DE HISTÓRICO -->
+                    <div id="weight-history" class="space-y-3"></div>
+                </div>
             </section>
 
             <!-- TAB: PERFIL -->
@@ -300,15 +314,12 @@
                     <p id="profile-goal" class="text-emerald-500 font-bold uppercase text-xs tracking-widest mt-1">Objetivo: Emagrecer</p>
                 </div>
 
-                <!-- NOVO: MEUS ALIMENTOS PERSONALIZADOS -->
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="font-black text-lg">🍎 Meus Alimentos</h3>
                         <button onclick="app.openPermanentFoodModal()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase">+ Adicionar Permanente</button>
                     </div>
-                    <div id="my-permanent-foods-list" class="space-y-2">
-                        <!-- Lista de alimentos permanentes -->
-                    </div>
+                    <div id="my-permanent-foods-list" class="space-y-2"></div>
                 </div>
 
                 <div class="space-y-4">
@@ -370,7 +381,6 @@
                     <input type="text" id="man-nome" placeholder="Ex: Shake Caseiro" class="w-full p-4 bg-slate-100 rounded-2xl outline-none">
                 </div>
 
-                <!-- UNIDADE DE MEDIDA (SOLICITAÇÃO 4) -->
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Unidade de Medida</label>
                     <div class="grid grid-cols-3 gap-2">
@@ -460,8 +470,8 @@
                 this.activeMealId = null;
                 this.activeDay = this.getCurrentDayLabel();
                 this.selectedFood = null;
-                this.editingItemInfo = null; // { day, mealId, index }
-                this.editingPermanentId = null; // Para edição de alimento na base
+                this.editingItemInfo = null;
+                this.editingPermanentId = null;
                 this.chart = null;
                 this.init();
             }
@@ -478,6 +488,7 @@
                     document.getElementById('onboarding').classList.remove('hidden');
                 } else {
                     if(!this.data.meusAlimentos) this.data.meusAlimentos = [];
+                    if(!this.data.historicoPeso) this.data.historicoPeso = [];
                     this.renderAll();
                 }
 
@@ -521,7 +532,12 @@
                     perfil: { nome, idade, peso, altura, objetivo, metaKcal, metaP, metaC, metaG, treinos, caminha },
                     refeicoes: {},
                     meusAlimentos: [],
-                    historicoPeso: [{ data: new Date().toLocaleDateString(), peso: peso }]
+                    historicoPeso: [{ 
+                        id: Date.now(),
+                        data: new Date().toLocaleDateString('pt-BR'), 
+                        peso: peso,
+                        timestamp: Date.now()
+                    }]
                 };
 
                 DAYS.forEach(d => {
@@ -559,27 +575,6 @@
                 this.renderAll();
             }
 
-            setModalTab(tab) {
-                const isSearch = tab === 'search';
-                document.getElementById('area-search').style.display = isSearch ? 'block' : 'none';
-                document.getElementById('area-manual').style.display = isSearch ? 'none' : 'block';
-                document.getElementById('tab-search-btn').className = isSearch ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
-                document.getElementById('tab-manual-btn').className = !isSearch ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
-                
-                if(!isSearch) {
-                    this.selectedFood = { isManual: true };
-                    document.getElementById('selected-food-area').classList.remove('hidden');
-                    document.getElementById('selected-food-name').innerText = "Novo Alimento";
-                    this.updateManualUnitLabel('g');
-                } else {
-                    document.getElementById('selected-food-area').classList.add('hidden');
-                }
-            }
-
-            updateManualUnitLabel(unit) {
-                document.getElementById('selected-food-unit-label').innerText = unit;
-            }
-
             showTab(tab) {
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById('tab-' + tab).classList.add('active');
@@ -595,7 +590,10 @@
 
                 const titles = { home: 'Início', plano: 'Meu Plano', progresso: 'Progresso', perfil: 'Meu Perfil' };
                 document.getElementById('tab-title-mobile').innerText = titles[tab];
-                if(tab === 'progresso') this.renderChart();
+                if(tab === 'progresso') {
+                    this.renderChart();
+                    this.renderWeightHistory();
+                }
                 this.renderOrientation();
             }
 
@@ -614,7 +612,6 @@
                 }
             }
 
-            // NOVA FUNCIONALIDADE: RESETAR STATUS DA SEMANA
             resetWeeklyStatus() {
                 if (confirm("Deseja resetar o status de conclusão de todos os dias da semana? Seus alimentos cadastrados não serão apagados.")) {
                     DAYS.forEach(day => {
@@ -680,25 +677,21 @@
                 const consumed = this.calculateTotals(this.activeDay, true);
                 const meta = this.data.perfil;
 
-                // Atualizar labels de Previsão
                 document.getElementById('kcal-previsao').innerText = prediction.kcal;
                 document.getElementById('p-previsao').innerText = prediction.p;
                 document.getElementById('c-previsao').innerText = prediction.c;
                 document.getElementById('g-previsao').innerText = prediction.g;
 
-                // Atualizar labels de Consumido
                 document.getElementById('kcal-consumido').innerText = consumed.kcal;
                 document.getElementById('p-consumido').innerText = consumed.p;
                 document.getElementById('c-consumido').innerText = consumed.c;
                 document.getElementById('g-consumido').innerText = consumed.g;
 
-                // Lógica de Meta Restante (Baseada no Consumido)
                 const restKcal = Math.max(0, meta.metaKcal - consumed.kcal);
                 document.getElementById('kcal-atual').innerText = restKcal;
                 document.getElementById('kcal-meta').innerText = meta.metaKcal;
                 document.getElementById('kcal-restante').innerText = restKcal > 0 ? `Restam ${restKcal} kcal` : `Meta atingida!`;
                 
-                // Ring de Progresso (O quanto já consumiu da meta)
                 document.getElementById('kcal-ring').style.strokeDashoffset = 364.4 - (Math.min(consumed.kcal / meta.metaKcal, 1) * 364.4);
                 
                 ['p','c','g'].forEach(m => {
@@ -810,28 +803,23 @@
             editAddedItem(mealId, index) {
                 const item = this.data.refeicoes[this.activeDay][mealId][index];
                 this.editingItemInfo = { day: this.activeDay, mealId, index };
-                
                 document.getElementById('modal-food-title').innerText = "Editar Alimento";
                 document.getElementById('modal-food-tabs').style.display = "none";
                 document.getElementById('area-search').style.display = "none";
                 document.getElementById('area-manual').style.display = "block";
-                
                 document.getElementById('man-nome').value = item.nome;
                 document.getElementById('man-ref-qty').value = item.ref || 100;
                 document.getElementById('man-kcal').value = item.refKcal || Math.round((item.totalKcal / item.qty) * (item.ref || 100));
                 document.getElementById('man-p').value = item.refP || (item.totalP / item.qty) * (item.ref || 100);
                 document.getElementById('man-c').value = item.refC || (item.totalC / item.qty) * (item.ref || 100);
                 document.getElementById('man-g').value = item.refG || (item.totalG / item.qty) * (item.ref || 100);
-                
                 const unitId = `unit-${item.unit === 'g' ? 'g' : item.unit === 'ml' ? 'ml' : 'un'}`;
                 document.getElementById(unitId).checked = true;
-                
                 this.selectedFood = { isManual: true };
                 document.getElementById('selected-food-area').classList.remove('hidden');
                 document.getElementById('selected-food-name').innerText = item.nome;
                 document.getElementById('selected-food-qty').value = item.qty;
                 document.getElementById('selected-food-unit-label').innerText = item.unit;
-                
                 document.getElementById('modal-food').classList.remove('hidden');
             }
 
@@ -850,7 +838,6 @@
                 this.searchFood();
             }
 
-            // NOVAS FUNCIONALIDADES: MEUS ALIMENTOS PERMANENTES
             openPermanentFoodModal() {
                 this.editingPermanentId = null;
                 document.getElementById('modal-food-title').innerText = "Novo Alimento Permanente";
@@ -866,7 +853,6 @@
                 document.getElementById('modal-food-title').innerText = "Editar Permanente";
                 document.getElementById('modal-food-tabs').style.display = "none";
                 this.setModalTab('manual');
-                
                 document.getElementById('man-nome').value = food.nome;
                 document.getElementById('man-ref-qty').value = food.ref;
                 document.getElementById('man-kcal').value = food.kcal;
@@ -875,7 +861,6 @@
                 document.getElementById('man-g').value = food.g;
                 const unitId = `unit-${food.unit === 'g' ? 'g' : food.unit === 'ml' ? 'ml' : 'un'}`;
                 document.getElementById(unitId).checked = true;
-
                 document.getElementById('modal-food').classList.remove('hidden');
             }
 
@@ -950,7 +935,6 @@
                 const rC = parseFloat(document.getElementById('man-c').value) || 0;
                 const rG = parseFloat(document.getElementById('man-g').value) || 0;
 
-                // Se estivermos editando/criando na base (perfil)
                 if(this.editingPermanentId || (this.selectedFood?.isManual && !this.activeMealId)) {
                     if(!nome) return alert("Dê um nome ao alimento.");
                     const foodData = { id: this.editingPermanentId || Date.now(), nome, kcal: rKcal, p: rP, c: rC, g: rG, unit, ref, isCustom: true };
@@ -958,48 +942,22 @@
                         const idx = this.data.meusAlimentos.findIndex(f => f.id === this.editingPermanentId);
                         this.data.meusAlimentos[idx] = foodData;
                     } else {
-                        if(this.data.meusAlimentos.some(f => f.nome.toLowerCase() === nome.toLowerCase())) {
-                            if(!confirm("Já existe um alimento com este nome. Deseja salvar mesmo assim?")) return;
-                        }
                         this.data.meusAlimentos.push(foodData);
                     }
                     this.save(); this.closeFoodModal(); this.renderAll();
                     return;
                 }
 
-                // Fluxo normal de adicionar à refeição
                 if(isNaN(qty) || qty <= 0) return alert("Insira uma quantidade válida.");
-
                 let newItem;
                 if (this.selectedFood?.isManual) {
                     if(!nome) return alert("Dê um nome ao alimento.");
                     const factor = qty / ref;
-                    newItem = {
-                        nome, qty, unit, ref,
-                        refKcal: rKcal, refP: rP, refC: rC, refG: rG,
-                        totalKcal: rKcal * factor,
-                        totalP: parseFloat((rP * factor).toFixed(1)), 
-                        totalC: parseFloat((rC * factor).toFixed(1)), 
-                        totalG: parseFloat((rG * factor).toFixed(1))
-                    };
-
-                    if (!this.editingItemInfo) {
-                        this.data.meusAlimentos.push({
-                            id: Date.now(), nome, kcal: rKcal, p: rP, c: rC, g: rG, unit, ref, isCustom: true
-                        });
-                    }
+                    newItem = { nome, qty, unit, ref, refKcal: rKcal, refP: rP, refC: rC, refG: rG, totalKcal: rKcal * factor, totalP: parseFloat((rP * factor).toFixed(1)), totalC: parseFloat((rC * factor).toFixed(1)), totalG: parseFloat((rG * factor).toFixed(1)) };
                 } else if (this.selectedFood) {
                     const factor = qty / (this.selectedFood.ref || 100);
-                    newItem = {
-                        nome: this.selectedFood.nome,
-                        qty, unit: this.selectedFood.unit || 'g', ref: this.selectedFood.ref || 100,
-                        totalKcal: this.selectedFood.kcal * factor,
-                        totalP: parseFloat((this.selectedFood.p * factor).toFixed(1)),
-                        totalC: parseFloat((this.selectedFood.c * factor).toFixed(1)),
-                        totalG: parseFloat((this.selectedFood.g * factor).toFixed(1))
-                    };
+                    newItem = { nome: this.selectedFood.nome, qty, unit: this.selectedFood.unit || 'g', ref: this.selectedFood.ref || 100, totalKcal: this.selectedFood.kcal * factor, totalP: parseFloat((this.selectedFood.p * factor).toFixed(1)), totalC: parseFloat((this.selectedFood.c * factor).toFixed(1)), totalG: parseFloat((this.selectedFood.g * factor).toFixed(1)) };
                 }
-
                 if(newItem) {
                     if(this.editingItemInfo) {
                         this.data.refeicoes[this.editingItemInfo.day][this.editingItemInfo.mealId][this.editingItemInfo.index] = newItem;
@@ -1017,21 +975,172 @@
                 }
             }
 
+            // --- LÓGICA DE HISTÓRICO DE PESO ---
             addWeightRecord() {
                 const w = parseFloat(document.getElementById('new-weight').value);
                 if(!w) return;
-                this.data.historicoPeso.push({ data: new Date().toLocaleDateString(), peso: w });
+                const now = new Date();
+                const record = { 
+                    id: Date.now(),
+                    data: now.toLocaleDateString('pt-BR'), 
+                    peso: w,
+                    timestamp: now.getTime()
+                };
+                this.data.historicoPeso.push(record);
                 this.data.perfil.peso = w;
-                this.save(); document.getElementById('new-weight').value = '';
-                this.renderWeightHistory(); this.renderChart();
+                this.save(); 
+                document.getElementById('new-weight').value = '';
+                this.renderWeightHistory(); 
+                this.renderChart();
+            }
+
+            deleteWeightRecord(id) {
+                if (confirm("Deseja realmente excluir este registro de peso?")) {
+                    this.data.historicoPeso = this.data.historicoPeso.filter(r => r.id !== id);
+                    if (this.data.historicoPeso.length > 0) {
+                        this.data.perfil.peso = this.data.historicoPeso[this.data.historicoPeso.length - 1].peso;
+                    }
+                    this.save();
+                    this.renderWeightHistory();
+                    this.renderChart();
+                }
+            }
+
+            editWeightRecord(id) {
+                const record = this.data.historicoPeso.find(r => r.id === id);
+                if (!record) return;
+                const newPeso = prompt("Editar Peso (kg):", record.peso);
+                if (newPeso === null) return;
+                const newDate = prompt("Editar Data (DD/MM/AAAA):", record.data);
+                if (newDate === null) return;
+
+                const dateParts = newDate.split('/');
+                if (dateParts.length === 3) {
+                    const parsedDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                    if (!isNaN(parsedDate.getTime())) {
+                        record.peso = parseFloat(newPeso);
+                        record.data = newDate;
+                        record.timestamp = parsedDate.getTime();
+                        
+                        this.data.historicoPeso.sort((a, b) => a.timestamp - b.timestamp);
+                        this.data.perfil.peso = this.data.historicoPeso[this.data.historicoPeso.length - 1].peso;
+                        
+                        this.save();
+                        this.renderWeightHistory();
+                        this.renderChart();
+                    } else {
+                        alert("Data inválida.");
+                    }
+                }
             }
 
             renderWeightHistory() {
-                const history = [...this.data.historicoPeso].reverse();
-                document.getElementById('weight-history').innerHTML = history.map(r => `<div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between">
-                    <span class="text-slate-500 font-medium">${r.data}</span>
-                    <span class="font-black text-slate-800">${r.peso} kg</span>
-                </div>`).join('');
+                const history = [...this.data.historicoPeso].sort((a, b) => b.timestamp - a.timestamp);
+                const filter = document.getElementById('weight-month-filter');
+                const listContainer = document.getElementById('weight-history');
+                const summaryContainer = document.getElementById('monthly-weight-summary');
+                const selectedMonth = filter.value;
+
+                // Popular filtro de meses
+                const monthsSet = new Set();
+                history.forEach(r => {
+                    const parts = r.data.split('/');
+                    monthsSet.add(`${parts[1]}/${parts[2]}`);
+                });
+                
+                const currentFilterVal = filter.value;
+                filter.innerHTML = '<option value="all">TODOS</option>';
+                Array.from(monthsSet).sort((a, b) => {
+                    const [m1, y1] = a.split('/');
+                    const [m2, y2] = b.split('/');
+                    return new Date(y2, m2-1) - new Date(y1, m1-1);
+                }).forEach(m => {
+                    const date = new Date(m.split('/')[1], m.split('/')[0] - 1);
+                    const label = date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                    filter.innerHTML += `<option value="${m}">${label}</option>`;
+                });
+                filter.value = currentFilterVal;
+
+                // Filtrar e Agrupar
+                let filtered = selectedMonth === 'all' ? history : history.filter(r => r.data.includes(selectedMonth));
+                
+                // Calcular Sumário Mensal
+                if (selectedMonth !== 'all' && filtered.length > 0) {
+                    const chronologic = [...filtered].sort((a, b) => a.timestamp - b.timestamp);
+                    const first = chronologic[0].peso;
+                    const last = chronologic[chronologic.length - 1].peso;
+                    const diff = (last - first).toFixed(1);
+                    const diffLabel = diff > 0 ? `+${diff}` : diff;
+                    const diffColor = diff > 0 ? 'text-rose-500' : diff < 0 ? 'text-emerald-500' : 'text-slate-400';
+
+                    summaryContainer.innerHTML = `
+                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">Primeiro</p>
+                            <p class="text-sm font-black">${first}kg</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">Último</p>
+                            <p class="text-sm font-black">${last}kg</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl border border-slate-100 text-center">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">Variação</p>
+                            <p class="text-sm font-black ${diffColor}">${diffLabel}kg</p>
+                        </div>
+                    `;
+                    summaryContainer.style.display = 'grid';
+                } else {
+                    summaryContainer.style.display = 'none';
+                }
+
+                // Renderizar Itens
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<p class="text-center text-slate-400 text-xs py-10 italic">Nenhum registro encontrado.</p>`;
+                    return;
+                }
+
+                let html = "";
+                let lastMonthGroup = "";
+
+                filtered.forEach((r, idx) => {
+                    const parts = r.data.split('/');
+                    const monthGroup = `${parts[1]}/${parts[2]}`;
+                    
+                    if (selectedMonth === 'all' && monthGroup !== lastMonthGroup) {
+                        const date = new Date(parts[2], parts[1] - 1);
+                        html += `<h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-6 mb-2 px-2">${date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}</h4>`;
+                        lastMonthGroup = monthGroup;
+                    }
+
+                    // Variação com o registro anterior (cronológico)
+                    const chronologicFull = [...this.data.historicoPeso].sort((a, b) => a.timestamp - b.timestamp);
+                    const currentIdx = chronologicFull.findIndex(item => item.id === r.id);
+                    let rowDiffHtml = "";
+                    if (currentIdx > 0) {
+                        const prevPeso = chronologicFull[currentIdx - 1].peso;
+                        const d = (r.peso - prevPeso).toFixed(1);
+                        const dLabel = d > 0 ? `+${d}` : d;
+                        const dColor = d > 0 ? 'bg-rose-50 text-rose-500' : d < 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400';
+                        rowDiffHtml = `<span class="text-[9px] font-black px-2 py-1 rounded-lg ${dColor}">${dLabel}kg</span>`;
+                    }
+
+                    html += `
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center group">
+                            <div class="flex items-center gap-4">
+                                <div class="text-left">
+                                    <span class="text-[10px] text-slate-400 font-bold block">${r.data}</span>
+                                    <span class="font-black text-slate-800 text-lg">${r.peso} kg</span>
+                                </div>
+                                ${rowDiffHtml}
+                            </div>
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="app.editWeightRecord(${r.id})" class="text-slate-300 hover:text-emerald-500 p-2"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                                <button onclick="app.deleteWeightRecord(${id = r.id})" class="text-slate-300 hover:text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+                lucide.createIcons();
             }
 
             renderChart() {
@@ -1039,19 +1148,28 @@
                 if(!canvas) return;
                 const ctx = canvas.getContext('2d');
                 if(this.chart) this.chart.destroy();
+                
+                const sorted = [...this.data.historicoPeso].sort((a, b) => a.timestamp - b.timestamp);
+                
                 this.chart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: this.data.historicoPeso.map(r => r.data),
+                        labels: sorted.map(r => r.data),
                         datasets: [{
                             label: 'Peso (kg)',
-                            data: this.data.historicoPeso.map(r => r.peso),
+                            data: sorted.map(r => r.peso),
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             borderWidth: 4, fill: true, tension: 0.4
                         }]
                     },
-                    options: { plugins: { legend: { display: false } }, scales: { y: { grid: { display: false } }, x: { grid: { display: false } } } }
+                    options: { 
+                        plugins: { legend: { display: false } }, 
+                        scales: { 
+                            y: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }, 
+                            x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } } 
+                        } 
+                    }
                 });
             }
         }
