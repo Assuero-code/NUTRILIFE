@@ -326,7 +326,16 @@
             { id: 4, nome: "Ovo Cozido", kcal: 78, p: 6.3, c: 0.6, g: 5.3, ref: 1, unit: 'un' },
             { id: 5, nome: "Banana Prata", kcal: 90, p: 1.1, c: 23, g: 0.3, ref: 1, unit: 'un' },
             { id: 6, nome: "Pão Integral Fatia", kcal: 70, p: 3, c: 12, g: 1, ref: 1, unit: 'un' },
-            { id: 11, nome: "Leite Integral", kcal: 60, p: 3.2, c: 4.8, g: 3.3, ref: 100, unit: 'ml' }
+            { id: 11, nome: "Leite Integral", kcal: 60, p: 3.2, c: 4.8, g: 3.3, ref: 100, unit: 'ml' },
+            { id: 12, nome: "Iogurte Danone (200ml)", kcal: 138, p: 5.4, c: 23.5, g: 3.0, ref: 200, unit: 'ml' },
+            { id: 13, nome: "Whey Protein 35g (1 Dose)", kcal: 135, p: 26, c: 3.5, g: 2.0, ref: 35, unit: 'g' },
+            { id: 14, nome: "Pão de Forma Kim 50g (2 Fatias)", kcal: 137, p: 4.7, c: 25, g: 2.0, ref: 50, unit: 'g' },
+            { id: 15, nome: "Macarrão Penne com Carne Moída (200g)", kcal: 310, p: 18, c: 38, g: 9.0, ref: 200, unit: 'g' },
+            { id: 16, nome: "Pão de Queijo (Unidade)", kcal: 90, p: 1.8, c: 10.5, g: 4.5, ref: 1, unit: 'un' },
+            { id: 17, nome: "Café com Leite (200ml) com 2 Colheres de Chá de Açúcar", kcal: 102, p: 3.2, c: 14.8, g: 3.3, ref: 200, unit: 'ml' },
+            { id: 18, nome: "Carne de Panela com Batata (200g)", kcal: 260, p: 22, c: 12, g: 14.0, ref: 200, unit: 'g' },
+            { id: 19, nome: "Carne em Cubos (Músculo) 200g", kcal: 350, p: 52, c: 0, g: 13.0, ref: 200, unit: 'g' },
+            { id: 20, nome: "Pão de Forma Panco (2 Fatias)", kcal: 128, p: 4.0, c: 23, g: 2.0, ref: 50, unit: 'g' }
         ];
 
         const MEAL_TYPES = [
@@ -375,6 +384,12 @@
                 });
             }
 
+            syncCustomFoodsStorage() {
+                if (this.data && Array.isArray(this.data.meusAlimentos)) {
+                    localStorage.setItem('nutrilife_custom_foods', JSON.stringify(this.data.meusAlimentos));
+                }
+            }
+
             fixDataStructure() {
                 if(!this.data.meusAlimentos) this.data.meusAlimentos = [];
                 if(!this.data.historicoPeso) this.data.historicoPeso = [];
@@ -382,6 +397,19 @@
                 DAYS.forEach(d => {
                     if(!this.data.refeicoes[d]) this.data.refeicoes[d] = { cafe: [], almoco: [], tarde: [], jantar: [], treino: [] };
                 });
+
+                const customSaved = localStorage.getItem('nutrilife_custom_foods');
+                if (customSaved) {
+                    try {
+                        const parsed = JSON.parse(customSaved);
+                        parsed.forEach(item => {
+                            if (!this.data.meusAlimentos.some(f => f.id === item.id)) {
+                                this.data.meusAlimentos.push(item);
+                            }
+                        });
+                    } catch(e){}
+                }
+                this.syncCustomFoodsStorage();
             }
 
             handleCadastro() {
@@ -418,9 +446,15 @@
                 }
                 metaC = Math.round((metaKcal - (metaP * 4) - (metaG * 9)) / 4);
 
+                const savedCustom = localStorage.getItem('nutrilife_custom_foods');
+                let customFoods = [];
+                if (savedCustom) {
+                    try { customFoods = JSON.parse(savedCustom); } catch(e){}
+                }
+
                 this.data = {
                     perfil: { nome, idade, peso, altura, objetivo, metaKcal, metaP, metaC, metaG },
-                    refeicoes: {}, meusAlimentos: [],
+                    refeicoes: {}, meusAlimentos: customFoods,
                     historicoPeso: [{ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), peso: peso, timestamp: Date.now() }]
                 };
                 DAYS.forEach(d => {
@@ -428,6 +462,7 @@
                     MEAL_TYPES.forEach(m => this.data.refeicoes[d][m.id + '_status'] = false);
                 });
                 this.save();
+                this.syncCustomFoodsStorage();
                 this.init();
             }
 
@@ -612,7 +647,7 @@
             searchFood() {
                 const term = document.getElementById('food-search').value.toLowerCase();
                 const list = [...BASE_DATABASE, ...this.data.meusAlimentos];
-                const res = term.length < 1 ? list.slice(0, 5) : list.filter(f => f.nome.toLowerCase().includes(term));
+                const res = term.length < 1 ? list.slice(0, 20) : list.filter(f => f.nome.toLowerCase().includes(term));
                 document.getElementById('search-results').innerHTML = res.map(f => `<div onclick="app.selectFoodById(${f.id})" class="p-4 bg-slate-50 rounded-2xl mb-2 cursor-pointer font-bold text-sm flex justify-between"><span>${f.nome}</span><span class="text-[9px] opacity-50 uppercase">${f.kcal} kcal</span></div>`).join('');
             }
 
@@ -621,6 +656,7 @@
                 document.getElementById('selected-food-name').innerText = this.selectedFood.nome;
                 document.getElementById('selected-food-area').classList.remove('hidden');
                 document.getElementById('selected-food-unit-label').innerText = this.selectedFood.unit;
+                document.getElementById('selected-food-qty').value = this.selectedFood.ref || 100;
                 document.getElementById('qty-row').style.display = 'flex';
                 document.getElementById('search-results').innerHTML = '';
             }
@@ -648,6 +684,7 @@
                     this.data.refeicoes[this.activeDay][this.activeMealId].push(item);
                 } else {
                     this.data.meusAlimentos.push(finalFood);
+                    this.syncCustomFoodsStorage();
                 }
                 this.save(); this.closeFoodModal(); this.renderAll();
             }
@@ -737,8 +774,8 @@
             cloneMonday() { const mon = this.data.refeicoes['seg']; if(confirm("Copiar segunda?")) { DAYS.forEach(d => { if(d !== 'seg') this.data.refeicoes[d] = JSON.parse(JSON.stringify(mon)); }); this.save(); this.renderAll(); } }
             resetWeeklyStatus() { if(confirm("Limpar conclusões?")) { DAYS.forEach(d => MEAL_TYPES.forEach(m => this.data.refeicoes[d][m.id + '_status'] = false)); this.save(); this.renderAll(); } }
             renderPermanentFoods() { document.getElementById('my-permanent-foods-list').innerHTML = this.data.meusAlimentos.map(f => `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center font-bold text-sm"><span>${f.nome}</span><button onclick="app.deletePermanent(${f.id})" class="text-rose-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join(''); lucide.createIcons(); }
-            deletePermanent(id) { if(confirm("Remover?")) { this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id); this.save(); this.renderAll(); } }
-            resetData() { if(confirm("Deseja apagar tudo?")) { localStorage.removeItem('nutrilife_data_v2'); location.reload(); } }
+            deletePermanent(id) { if(confirm("Remover?")) { this.data.meusAlimentos = this.data.meusAlimentos.filter(f => f.id !== id); this.syncCustomFoodsStorage(); this.save(); this.renderAll(); } }
+            resetData() { if(confirm("Deseja apagar tudo? (Seus alimentos cadastrados manualmente serão mantidos)")) { const customFoods = localStorage.getItem('nutrilife_custom_foods'); localStorage.removeItem('nutrilife_data_v2'); if (customFoods) { localStorage.setItem('nutrilife_custom_foods', customFoods); } location.reload(); } }
         }
 
         const app = new NutriLife();
