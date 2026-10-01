@@ -280,6 +280,7 @@
             <div class="flex gap-4 border-b border-slate-100" id="modal-food-tabs">
                 <button onclick="app.setModalTab('search')" id="tab-search-btn" class="pb-2 border-b-2 border-emerald-500 font-bold text-sm">Pesquisar</button>
                 <button onclick="app.setModalTab('manual')" id="tab-manual-btn" class="pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm">+ Manual</button>
+                <button onclick="app.setModalTab('photo')" id="tab-photo-btn" class="pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm">📸 Foto IA</button>
             </div>
 
             <div id="area-search" class="space-y-4">
@@ -302,6 +303,82 @@
                     <input type="number" id="man-p" placeholder="P (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
                     <input type="number" id="man-c" placeholder="C (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
                     <input type="number" id="man-g" placeholder="G (g)" class="w-full p-3 bg-slate-100 rounded-2xl outline-none text-center">
+                </div>
+            </div>
+
+            <div id="area-photo" class="hidden space-y-4">
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="app.toggleApiKeyField()">
+                        <span class="font-bold text-slate-600 flex items-center gap-1.5"><i data-lucide="key" class="w-3.5 h-3.5 text-emerald-600"></i> Chave API Gemini (Opcional)</span>
+                        <i data-lucide="chevron-down" id="api-key-chevron" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                    <div id="api-key-container" class="hidden mt-3 space-y-2">
+                        <input type="password" id="gemini-api-key" placeholder="Cole sua chave API Gemini aqui" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-xs">
+                        <p class="text-[10px] text-slate-400">A chave fica salva com segurança no seu navegador.</p>
+                    </div>
+                </div>
+
+                <div class="border-2 border-dashed border-emerald-300 bg-emerald-50/50 rounded-3xl p-6 text-center cursor-pointer hover:bg-emerald-50 transition" onclick="document.getElementById('food-photo-input').click()">
+                    <input type="file" id="food-photo-input" accept="image/*" capture="environment" class="hidden" onchange="app.handleFoodPhotoSelect(event)">
+                    <div class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-200">
+                        <i data-lucide="camera" class="w-6 h-6"></i>
+                    </div>
+                    <p class="font-bold text-sm text-slate-700">Tirar foto ou carregar imagem</p>
+                    <p class="text-[11px] text-slate-400 mt-1">A IA analisará a foto e gerará a tabela nutricional verídica</p>
+                </div>
+
+                <div id="photo-preview-container" class="hidden space-y-3">
+                    <div class="relative rounded-2xl overflow-hidden max-h-48 border border-slate-200">
+                        <img id="photo-preview-img" src="" class="w-full h-full object-cover">
+                        <button onclick="app.clearFoodPhoto()" class="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-sm"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+
+                    <button id="btn-analyze-photo" onclick="app.analyzeFoodPhoto()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 transition">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i> Analisar Alimento com IA
+                    </button>
+                </div>
+
+                <div id="photo-loading-state" class="hidden p-6 text-center space-y-3">
+                    <div class="inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full"></div>
+                    <p class="font-bold text-sm text-slate-700">Analisando imagem com IA...</p>
+                    <p class="text-xs text-slate-400">Consultando informações nutricionais verídicas</p>
+                </div>
+
+                <div id="photo-error-state" class="hidden p-4 bg-rose-50 text-rose-700 rounded-2xl border border-rose-100 text-xs font-medium space-y-2">
+                    <p id="photo-error-message"></p>
+                </div>
+
+                <div id="photo-result-card" class="hidden space-y-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-emerald-600 tracking-wider">✓ Tabela Nutricional Encontrada</span>
+                            <h4 id="photo-result-name" class="font-black text-lg text-slate-800"></h4>
+                            <p id="photo-result-desc" class="text-xs text-slate-500 mt-0.5"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="bg-white p-2.5 rounded-2xl border border-slate-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Calorias</span>
+                            <span id="photo-result-kcal" class="font-black text-sm text-emerald-600">0</span>
+                            <span class="text-[9px] text-slate-400 block">kcal</span>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-2xl border border-slate-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Proteína</span>
+                            <span id="photo-result-p" class="font-black text-sm text-rose-500">0</span>
+                            <span class="text-[9px] text-slate-400 block">g</span>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-2xl border border-slate-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Carboidrato</span>
+                            <span id="photo-result-c" class="font-black text-sm text-amber-500">0</span>
+                            <span class="text-[9px] text-slate-400 block">g</span>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-2xl border border-slate-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Gordura</span>
+                            <span id="photo-result-g" class="font-black text-sm text-sky-500">0</span>
+                            <span class="text-[9px] text-slate-400 block">g</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -626,21 +703,197 @@
             toggleMealStatus(mealId) { this.data.refeicoes[this.activeDay][mealId + '_status'] = !this.data.refeicoes[this.activeDay][mealId + '_status']; this.save(); this.renderAll(); }
             openFoodModal(mealId) { this.activeMealId = mealId; document.getElementById('modal-food').classList.remove('hidden'); this.setModalTab('search'); }
             openPermanentFoodModal() { this.activeMealId = null; document.getElementById('modal-food').classList.remove('hidden'); this.setModalTab('manual'); }
-            closeFoodModal() { document.getElementById('modal-food').classList.add('hidden'); this.selectedFood = null; }
+            closeFoodModal() {
+                document.getElementById('modal-food').classList.add('hidden');
+                this.selectedFood = null;
+                this.clearFoodPhoto();
+            }
 
             setModalTab(tab) {
                 const isS = tab === 'search';
+                const isM = tab === 'manual';
+                const isP = tab === 'photo';
+
                 document.getElementById('area-search').style.display = isS ? 'block' : 'none';
-                document.getElementById('area-manual').style.display = isS ? 'none' : 'block';
-                document.getElementById('tab-search-btn').className = isS ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
-                document.getElementById('tab-manual-btn').className = !isS ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
-                document.getElementById('selected-food-area').classList.remove('hidden');
-                if(!isS) {
+                document.getElementById('area-manual').style.display = isM ? 'block' : 'none';
+                document.getElementById('area-photo').style.display = isP ? 'block' : 'none';
+
+                document.getElementById('tab-search-btn').className = isS ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm text-slate-800' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
+                document.getElementById('tab-manual-btn').className = isM ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm text-slate-800' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
+                document.getElementById('tab-photo-btn').className = isP ? 'pb-2 border-b-2 border-emerald-500 font-bold text-sm text-slate-800' : 'pb-2 border-b-2 border-transparent text-slate-400 font-bold text-sm';
+
+                if (isM) {
                     this.selectedFood = { isManual: true };
                     document.getElementById('selected-food-name').innerText = this.activeMealId ? "Novo Manual" : "Cadastrar Alimento";
+                    document.getElementById('selected-food-area').classList.remove('hidden');
                     document.getElementById('qty-row').style.display = this.activeMealId ? 'flex' : 'none';
+                } else if (isP) {
+                    const savedKey = localStorage.getItem('nutrilife_gemini_api_key') || '';
+                    if (savedKey) {
+                        const keyEl = document.getElementById('gemini-api-key');
+                        if (keyEl) keyEl.value = savedKey;
+                    }
+                    if (this.selectedFood && !this.selectedFood.isManual && this.selectedFood.isPhoto) {
+                        document.getElementById('selected-food-area').classList.remove('hidden');
+                    } else {
+                        document.getElementById('selected-food-area').classList.add('hidden');
+                    }
                 } else {
                     document.getElementById('selected-food-area').classList.add('hidden');
+                }
+                lucide.createIcons();
+            }
+
+            toggleApiKeyField() {
+                const container = document.getElementById('api-key-container');
+                if (container) container.classList.toggle('hidden');
+            }
+
+            saveApiKey() {
+                const input = document.getElementById('gemini-api-key');
+                if (input && input.value.trim()) {
+                    localStorage.setItem('nutrilife_gemini_api_key', input.value.trim());
+                }
+            }
+
+            handleFoodPhotoSelect(event) {
+                const file = event.target.files && event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentPhotoBase64 = e.target.result;
+                    this.currentPhotoMime = file.type || 'image/jpeg';
+
+                    document.getElementById('photo-preview-img').src = e.target.result;
+                    document.getElementById('photo-preview-container').classList.remove('hidden');
+                    document.getElementById('photo-error-state').classList.add('hidden');
+                    document.getElementById('photo-result-card').classList.add('hidden');
+                    document.getElementById('selected-food-area').classList.add('hidden');
+                    lucide.createIcons();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            clearFoodPhoto() {
+                this.currentPhotoBase64 = null;
+                this.currentPhotoMime = null;
+                const input = document.getElementById('food-photo-input');
+                if (input) input.value = '';
+                
+                const previewC = document.getElementById('photo-preview-container');
+                if (previewC) previewC.classList.add('hidden');
+                const loadingC = document.getElementById('photo-loading-state');
+                if (loadingC) loadingC.classList.add('hidden');
+                const errorC = document.getElementById('photo-error-state');
+                if (errorC) errorC.classList.add('hidden');
+                const resultC = document.getElementById('photo-result-card');
+                if (resultC) resultC.classList.add('hidden');
+            }
+
+            async analyzeFoodPhoto() {
+                if (!this.currentPhotoBase64) {
+                    alert("Por favor, selecione ou tire uma foto primeiro.");
+                    return;
+                }
+
+                this.saveApiKey();
+                const apiKey = (document.getElementById('gemini-api-key')?.value || localStorage.getItem('nutrilife_gemini_api_key') || '').trim();
+
+                if (!apiKey) {
+                    document.getElementById('photo-error-message').innerText = "Por favor, insira sua chave da API do Gemini (Google) no campo acima para realizar a análise inteligente por foto.";
+                    document.getElementById('photo-error-state').classList.remove('hidden');
+                    document.getElementById('api-key-container').classList.remove('hidden');
+                    lucide.createIcons();
+                    return;
+                }
+
+                document.getElementById('photo-loading-state').classList.remove('hidden');
+                document.getElementById('photo-error-state').classList.add('hidden');
+                document.getElementById('photo-result-card').classList.add('hidden');
+                document.getElementById('selected-food-area').classList.add('hidden');
+
+                try {
+                    const rawBase64 = this.currentPhotoBase64.split(',')[1];
+                    const mimeType = this.currentPhotoMime || 'image/jpeg';
+
+                    const promptText = "Analise esta foto de alimento com alta precisao nutricional baseando-se exclusivamente em tabelas oficiais e veridicas de nutricao (ex: TACO / USDA). " +
+                        "Identifique o alimento ou refeicao e estime a porcao presente na foto. " +
+                        "Responda ESTRITAMENTE em formato JSON com as propriedades: " +
+                        "\"nome\" (nome legivel em portugues), " +
+                        "\"descricao\" (resumo explicativo do alimento e porcao estimada), " +
+                        "\"ref\" (quantidade da porcao em numeros, ex: 100), " +
+                        "\"unit\" (unidade exata: 'g', 'ml' ou 'un'), " +
+                        "\"kcal\" (total de calorias da porcao em numeros inteiros), " +
+                        "\"p\" (proteinas da porcao em gramas, numero), " +
+                        "\"c\" (carboidratos da porcao em gramas, numero), " +
+                        "\"g\" (gorduras da porcao em gramas, numero). " +
+                        "Retorne apenas o JSON puro, sem blocos markdown ou explicacoes adicionais.";
+
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: promptText },
+                                    { inline_data: { mime_type: mimeType, data: rawBase64 } }
+                                ]
+                            }],
+                            generationConfig: { response_mime_type: "application/json" }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.error?.message || `Erro na API (${response.status})`);
+                    }
+
+                    const data = await response.json();
+                    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!textContent) throw new Error("A IA não retornou uma resposta válida.");
+
+                    let cleanJson = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const result = JSON.parse(cleanJson);
+
+                    document.getElementById('photo-loading-state').classList.add('hidden');
+
+                    document.getElementById('photo-result-name').innerText = result.nome || 'Alimento';
+                    document.getElementById('photo-result-desc').innerText = result.descricao || `Porção estimada: ${result.ref || 100}${result.unit || 'g'}`;
+                    document.getElementById('photo-result-kcal').innerText = Math.round(result.kcal || 0);
+                    document.getElementById('photo-result-p').innerText = Number(result.p || 0).toFixed(1);
+                    document.getElementById('photo-result-c').innerText = Number(result.c || 0).toFixed(1);
+                    document.getElementById('photo-result-g').innerText = Number(result.g || 0).toFixed(1);
+
+                    document.getElementById('photo-result-card').classList.remove('hidden');
+
+                    this.selectedFood = {
+                        id: Date.now(),
+                        nome: result.nome || 'Alimento Analisado',
+                        kcal: Number(result.kcal) || 0,
+                        p: Number(result.p) || 0,
+                        c: Number(result.c) || 0,
+                        g: Number(result.g) || 0,
+                        ref: Number(result.ref) || 100,
+                        unit: result.unit || 'g',
+                        isManual: false,
+                        isPhoto: true
+                    };
+
+                    document.getElementById('selected-food-name').innerText = this.selectedFood.nome;
+                    document.getElementById('selected-food-unit-label').innerText = this.selectedFood.unit;
+                    document.getElementById('selected-food-qty').value = this.selectedFood.ref;
+                    document.getElementById('qty-row').style.display = 'flex';
+                    document.getElementById('selected-food-area').classList.remove('hidden');
+
+                    lucide.createIcons();
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('photo-loading-state').classList.add('hidden');
+                    document.getElementById('photo-error-message').innerText = "Erro ao analisar foto: " + (err.message || "Verifique sua conexão e a chave API.");
+                    document.getElementById('photo-error-state').classList.remove('hidden');
                 }
             }
 
