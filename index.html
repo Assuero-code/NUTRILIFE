@@ -831,15 +831,39 @@
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.currentPhotoBase64 = e.target.result;
-                    this.currentPhotoMime = file.type || 'image/jpeg';
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDim = 1024;
 
-                    document.getElementById('photo-preview-img').src = e.target.result;
-                    document.getElementById('photo-preview-container').classList.remove('hidden');
-                    document.getElementById('photo-error-state').classList.add('hidden');
-                    document.getElementById('photo-result-card').classList.add('hidden');
-                    document.getElementById('selected-food-area').classList.add('hidden');
-                    lucide.createIcons();
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        this.currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                        this.currentPhotoMime = 'image/jpeg';
+
+                        document.getElementById('photo-preview-img').src = this.currentPhotoBase64;
+                        document.getElementById('photo-preview-container').classList.remove('hidden');
+                        document.getElementById('photo-error-state').classList.add('hidden');
+                        document.getElementById('photo-result-card').classList.add('hidden');
+                        document.getElementById('selected-food-area').classList.add('hidden');
+                        lucide.createIcons();
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -870,7 +894,7 @@
                 const apiKey = (document.getElementById('gemini-api-key')?.value || localStorage.getItem('nutrilife_gemini_api_key') || '').trim();
 
                 if (!apiKey) {
-                    document.getElementById('photo-error-message').innerText = "Por favor, insira sua chave da API do Gemini (Google) no campo acima para realizar a análise inteligente por foto.";
+                    document.getElementById('photo-error-message').innerHTML = "<b>Chave API necessária:</b> Gere uma chave gratuita no <a href='https://aistudio.google.com/app/apikey' target='_blank' class='underline font-bold text-emerald-700'>Google AI Studio (clique aqui)</a> e cole-a no campo acima.";
                     document.getElementById('photo-error-state').classList.remove('hidden');
                     document.getElementById('api-key-container').classList.remove('hidden');
                     lucide.createIcons();
@@ -886,50 +910,65 @@
                     const rawBase64 = this.currentPhotoBase64.split(',')[1];
                     const mimeType = this.currentPhotoMime || 'image/jpeg';
 
-                    const promptText = "Analise esta foto de alimento com alta precisao nutricional baseando-se exclusivamente em tabelas oficiais e veridicas de nutricao (ex: TACO / USDA). " +
-                        "Identifique o alimento ou refeicao e estime a porcao presente na foto. " +
-                        "Responda ESTRITAMENTE em formato JSON com as propriedades: " +
-                        "\"nome\" (nome legivel em portugues), " +
-                        "\"descricao\" (resumo explicativo do alimento e porcao estimada), " +
-                        "\"ref\" (quantidade da porcao em numeros, ex: 100), " +
-                        "\"unit\" (unidade exata: 'g', 'ml' ou 'un'), " +
-                        "\"kcal\" (total de calorias da porcao em numeros inteiros), " +
-                        "\"p\" (proteinas da porcao em gramas, numero), " +
-                        "\"c\" (carboidratos da porcao em gramas, numero), " +
-                        "\"g\" (gorduras da porcao em gramas, numero). " +
-                        "Retorne apenas o JSON puro, sem blocos markdown ou explicacoes adicionais.";
+                    const promptText = "Analise esta foto de alimento com precisao nutricional veridica (baseada em tabelas oficiais como TACO / USDA). " +
+                        "Identifique o alimento e a porcao aproximada. " +
+                        "Responda EXCLUSIVAMENTE um JSON valido com a seguinte estrutura: " +
+                        "{\"nome\":\"Nome do Alimento em Português\",\"descricao\":\"Breve resumo da porção e alimento\",\"ref\":100,\"unit\":\"g\",\"kcal\":150,\"p\":12.5,\"c\":20.0,\"g\":3.0}. " +
+                        "Use 'g', 'ml' ou 'un' em unit. Retorne apenas o JSON.";
 
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                    const models = [
+                        'gemini-1.5-flash',
+                        'gemini-2.0-flash',
+                        'gemini-1.5-pro'
+                    ];
 
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    { text: promptText },
-                                    { inline_data: { mime_type: mimeType, data: rawBase64 } }
-                                ]
-                            }],
-                            generationConfig: { response_mime_type: "application/json" }
-                        })
-                    });
+                    let data = null;
+                    let lastError = null;
 
-                    if (!response.ok) {
-                        const errData = await response.json().catch(() => ({}));
-                        throw new Error(errData.error?.message || `Erro na API (${response.status})`);
+                    for (const model of models) {
+                        try {
+                            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{
+                                        parts: [
+                                            { text: promptText },
+                                            { inline_data: { mime_type: mimeType, data: rawBase64 } }
+                                        ]
+                                    }],
+                                    generationConfig: { response_mime_type: "application/json" }
+                                })
+                            });
+
+                            if (response.ok) {
+                                data = await response.json();
+                                break;
+                            } else {
+                                const errJson = await response.json().catch(() => ({}));
+                                const msg = errJson.error?.message || `Status ${response.status}`;
+                                lastError = new Error(msg);
+                            }
+                        } catch (e) {
+                            lastError = e;
+                        }
                     }
 
-                    const data = await response.json();
-                    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (!textContent) throw new Error("A IA não retornou uma resposta válida.");
+                    if (!data) {
+                        throw lastError || new Error("Não foi possível conectar aos modelos do Gemini.");
+                    }
 
-                    let cleanJson = textContent.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!textContent) throw new Error("A IA não retornou um conteúdo válido.");
+
+                    const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                    const cleanJson = jsonMatch ? jsonMatch[0] : textContent;
                     const result = JSON.parse(cleanJson);
 
                     document.getElementById('photo-loading-state').classList.add('hidden');
 
-                    document.getElementById('photo-result-name').innerText = result.nome || 'Alimento';
+                    document.getElementById('photo-result-name').innerText = result.nome || 'Alimento Analisado';
                     document.getElementById('photo-result-desc').innerText = result.descricao || `Porção estimada: ${result.ref || 100}${result.unit || 'g'}`;
                     document.getElementById('photo-result-kcal').innerText = Math.round(result.kcal || 0);
                     document.getElementById('photo-result-p').innerText = Number(result.p || 0).toFixed(1);
@@ -959,10 +998,17 @@
 
                     lucide.createIcons();
                 } catch (err) {
-                    console.error(err);
+                    console.error("Erro na análise da foto:", err);
                     document.getElementById('photo-loading-state').classList.add('hidden');
-                    document.getElementById('photo-error-message').innerText = "Erro ao analisar foto: " + (err.message || "Verifique sua conexão e a chave API.");
+                    
+                    let msg = err.message || "Erro desconhecido.";
+                    if (msg.includes("API key not valid") || msg.includes("API_KEY_INVALID") || msg.includes("Status 400") || msg.includes("Status 403")) {
+                        msg = "Chave API inválida ou não autorizada. Por favor, gere uma chave válida gratuita no <a href='https://aistudio.google.com/app/apikey' target='_blank' class='underline font-bold text-emerald-700'>Google AI Studio</a>.";
+                    }
+                    
+                    document.getElementById('photo-error-message').innerHTML = "<b>Falha na análise:</b> " + msg;
                     document.getElementById('photo-error-state').classList.remove('hidden');
+                    document.getElementById('api-key-container').classList.remove('hidden');
                 }
             }
 
