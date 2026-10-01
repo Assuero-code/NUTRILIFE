@@ -251,6 +251,25 @@
                     <p id="profile-goal" class="text-emerald-500 font-bold uppercase text-xs tracking-widest mt-1">Meta</p>
                 </div>
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="key" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-lg text-slate-800">Chave API Gemini (IA)</h3>
+                            <p class="text-xs text-slate-400">Salva para analisar fotos de alimentos automaticamente</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="password" id="profile-gemini-api-key" placeholder="Cole sua chave API Gemini aqui" class="w-full p-4 bg-slate-100 rounded-2xl outline-none text-xs">
+                        <button onclick="app.saveApiKeyFromProfile()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-2xl font-bold text-xs shadow-md shadow-emerald-100 transition flex items-center justify-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i> Salvar Chave API
+                        </button>
+                        <p id="profile-api-key-status" class="text-xs text-center font-bold hidden"></p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4">
                     <div class="flex justify-between items-center px-2">
                         <h3 class="font-black text-lg">🍎 Meus Ingredientes</h3>
                         <button onclick="app.openPermanentFoodModal()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase">+ Adicionar Alimento</button>
@@ -313,8 +332,11 @@
                         <i data-lucide="chevron-down" id="api-key-chevron" class="w-4 h-4 text-slate-400"></i>
                     </div>
                     <div id="api-key-container" class="hidden mt-3 space-y-2">
-                        <input type="password" id="gemini-api-key" placeholder="Cole sua chave API Gemini aqui" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none text-xs">
-                        <p class="text-[10px] text-slate-400">A chave fica salva com segurança no seu navegador.</p>
+                        <div class="flex gap-2">
+                            <input type="password" id="gemini-api-key" placeholder="Cole sua chave API Gemini aqui" class="flex-1 p-3 bg-white border border-slate-200 rounded-xl outline-none text-xs">
+                            <button onclick="app.saveApiKeyFromModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 rounded-xl text-xs font-bold whitespace-nowrap transition">Salvar</button>
+                        </div>
+                        <p id="modal-api-key-status" class="text-[10px] text-slate-400">A chave fica salva com segurança no seu navegador.</p>
                     </div>
                 </div>
 
@@ -576,6 +598,11 @@
                 document.getElementById('profile-name').innerText = this.data.perfil.nome;
                 let objMap = { emagrecer: "Emagrecimento", recomposicao: "Recomposição Corporal", ganhar: "Ganho de Massa", manter: "Manutenção" };
                 document.getElementById('profile-goal').innerText = "Objetivo: " + objMap[this.data.perfil.objetivo];
+                const savedKey = localStorage.getItem('nutrilife_gemini_api_key') || '';
+                const profKeyEl = document.getElementById('profile-gemini-api-key');
+                if (profKeyEl) profKeyEl.value = savedKey;
+                const modalKeyEl = document.getElementById('gemini-api-key');
+                if (modalKeyEl) modalKeyEl.value = savedKey;
                 lucide.createIcons();
             }
 
@@ -753,6 +780,48 @@
                 const input = document.getElementById('gemini-api-key');
                 if (input && input.value.trim()) {
                     localStorage.setItem('nutrilife_gemini_api_key', input.value.trim());
+                    const profKeyEl = document.getElementById('profile-gemini-api-key');
+                    if (profKeyEl) profKeyEl.value = input.value.trim();
+                }
+            }
+
+            saveApiKeyFromProfile() {
+                const key = (document.getElementById('profile-gemini-api-key')?.value || '').trim();
+                const statusEl = document.getElementById('profile-api-key-status');
+                if (!key) {
+                    localStorage.removeItem('nutrilife_gemini_api_key');
+                    if (statusEl) {
+                        statusEl.innerText = "Chave removida.";
+                        statusEl.className = "text-xs text-center font-bold text-amber-500 block";
+                    }
+                    return;
+                }
+                localStorage.setItem('nutrilife_gemini_api_key', key);
+                const modalKeyEl = document.getElementById('gemini-api-key');
+                if (modalKeyEl) modalKeyEl.value = key;
+                if (statusEl) {
+                    statusEl.innerText = "✓ Chave API salva com sucesso!";
+                    statusEl.className = "text-xs text-center font-bold text-emerald-600 block";
+                    setTimeout(() => statusEl.classList.add('hidden'), 3000);
+                }
+            }
+
+            saveApiKeyFromModal() {
+                const key = (document.getElementById('gemini-api-key')?.value || '').trim();
+                const statusEl = document.getElementById('modal-api-key-status');
+                if (!key) {
+                    if (statusEl) {
+                        statusEl.innerText = "Por favor, digite uma chave válida.";
+                        statusEl.className = "text-[10px] text-rose-500 font-bold block";
+                    }
+                    return;
+                }
+                localStorage.setItem('nutrilife_gemini_api_key', key);
+                const profKeyEl = document.getElementById('profile-gemini-api-key');
+                if (profKeyEl) profKeyEl.value = key;
+                if (statusEl) {
+                    statusEl.innerText = "✓ Chave salva com sucesso!";
+                    statusEl.className = "text-[10px] text-emerald-600 font-bold block";
                 }
             }
 
