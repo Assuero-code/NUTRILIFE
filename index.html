@@ -916,11 +916,33 @@
                         "{\"nome\":\"Nome do Alimento em Português\",\"descricao\":\"Breve resumo da porção e alimento\",\"ref\":100,\"unit\":\"g\",\"kcal\":150,\"p\":12.5,\"c\":20.0,\"g\":3.0}. " +
                         "Use 'g', 'ml' ou 'un' em unit. Retorne apenas o JSON.";
 
-                    const models = [
+                    let models = [
+                        'gemini-2.5-flash',
+                        'gemini-1.5-flash-latest',
                         'gemini-1.5-flash',
                         'gemini-2.0-flash',
-                        'gemini-1.5-pro'
+                        'gemini-2.0-flash-exp'
                     ];
+
+                    try {
+                        const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+                        if (listRes.ok) {
+                            const listData = await listRes.json();
+                            if (listData.models && Array.isArray(listData.models)) {
+                                const available = listData.models
+                                    .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+                                    .map(m => m.name.replace('models/', ''));
+
+                                if (available.length > 0) {
+                                    const flashFirst = available.filter(m => m.includes('flash'));
+                                    const others = available.filter(m => !m.includes('flash'));
+                                    models = [...flashFirst, ...others];
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Consulta dinâmica de modelos indisponível, usando lista padrão.", e);
+                    }
 
                     let data = null;
                     let lastError = null;
